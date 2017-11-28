@@ -6,7 +6,8 @@ class Instruction
 	static HashMap<String,Instruction> map=new HashMap<String,Instruction>();
 	
 	String name;
-	String _31_28_;
+	String cond;
+	String condition;
 	String dp;
 	String immediate;
 	String opcode;
@@ -18,7 +19,7 @@ class Instruction
 
 	Instruction(String addr,String bin)
 	{
-		_31_28_ = bin.substring(0,4);
+		condition = bin.substring(0,4);
 		dp = bin.substring(4,6);
 		immediate = bin.substring(6,7);
 		opcode = bin.substring(7,11);
@@ -28,7 +29,30 @@ class Instruction
 		op2 = bin.substring(20,32);
 		address=addr;
 		this.setname();
-		map.put(address+opcode, this);
+		this.setcond();
+		map.put(address+opcode, this);		
+	}
+
+	private void setcond() {
+		// TODO Auto-generated method stub
+		if(this.condition.equals("0000")){
+			cond="EQ";
+		}
+		else if(this.condition.equals("0001")){
+			cond="NE";
+		}
+		else if(this.condition.equals("1010")){
+			cond="GE";
+		}
+		else if(this.condition.equals("1011")){
+			cond="LT";
+		}
+		else if(this.condition.equals("1100")){
+			cond="GT";
+		}
+		else if(this.condition.equals("1101")){
+			cond="LE";
+		}		
 	}
 
 	private void setname() {
@@ -109,7 +133,7 @@ public class Read
 		for(int i = 0; i < coded.size(); i++)
 		{
 			st = coded.get(i);
-			System.out.println(addresses.get(i) + "        " + st._31_28_ + "    " + st.dp + "         " + st.immediate + "          " + st.opcode + "   " + st.s + "      " + st.op1 + "      " + st.dest + "      " + st.op2);
+			System.out.println(addresses.get(i) + "        " + st.condition + "    " + st.dp + "         " + st.immediate + "          " + st.opcode + "   " + st.s + "      " + st.op1 + "      " + st.dest + "      " + st.op2);
 		}
 
 	}
