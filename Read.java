@@ -34,12 +34,36 @@ class Instruction
 	}
 
 	private void setcond() {
-		// TODO Auto-generated method stub
+
 		if(this.condition.equals("0000")){
 			cond="EQ";
 		}
 		else if(this.condition.equals("0001")){
 			cond="NE";
+		}
+		else if(this.condition.equals("0010")){
+			cond="CS";
+		}
+		else if(this.condition.equals("0011")){
+			cond="CC";
+		}
+		else if(this.condition.equals("0100")){
+			cond="MI";
+		}
+		else if(this.condition.equals("0101")){
+			cond="PL";
+		}
+		else if(this.condition.equals("0110")){
+			cond="VS";
+		}
+		else if(this.condition.equals("0111")){
+			cond="VC";
+		}
+		else if(this.condition.equals("1000")){
+			cond="HI";
+		}
+		else if(this.condition.equals("1001")){
+			cond="LS";
 		}
 		else if(this.condition.equals("1010")){
 			cond="GE";
@@ -53,37 +77,86 @@ class Instruction
 		else if(this.condition.equals("1101")){
 			cond="LE";
 		}		
+		else if(this.condition.equals("1110")){
+			cond="AL";
+		}
 	}
 
 	private void setname() {
-		// TODO Auto-generated method stub
-		if(this.opcode.equals("0000")){
-			this.name="AND";
+
+		if(this.dp.equals("00")){
+			if(this.opcode.equals("0000")){
+				if(this.op2.substring(4,8).equals("1001"))
+					this.name="MUL";
+				else
+					this.name="AND";
+			}
+			else if(this.opcode.equals("0001")){
+				if(this.op2.substring(4,8).equals("1001"))
+					this.name="MLA";
+				else
+					this.name="EOR";
+			}
+			else if(this.opcode.equals("0010")){
+				if(this.op2.substring(4,8).equals("1001"))
+					this.name="MLS";
+				else
+					this.name="SUB";
+			}
+			else if(this.opcode.equals("0011")){
+				this.name="RSB";
+			}
+			else if(this.opcode.equals("0100")){
+				this.name="ADD";
+			}
+			else if(this.opcode.equals("0101")){
+				this.name="ADC";
+			}
+			else if(this.opcode.equals("0110")){
+				this.name="SBC";
+			}
+			else if(this.opcode.equals("0111")){
+				this.name="RSC";
+			}
+			else if(this.opcode.equals("1000")){
+				this.name="TST";
+			}
+			else if(this.opcode.equals("1001")){
+				this.name="TEQ";
+			}
+			else if(this.opcode.equals("1010")){
+				this.name="CMP";
+			}
+			else if(this.opcode.equals("1011")){
+				this.name="CMN";
+			}
+			else if(this.opcode.equals("1100")){
+				this.name="ORR";
+			}
+			else if(this.opcode.equals("1101")){
+				this.name="MOV";
+			}
+			else if(this.opcode.equals("1110")){
+				this.name="BIC";
+			}
+			else if(this.opcode.equals("1111")){
+				this.name="MVN";
+			}
 		}
-		else if(this.opcode.equals("0100")){
-			this.name="ADD";
+		else if(dp.equals("01")){
+			if(this.s.equals("0")){
+				this.name="STR";
+			}
+			else
+				this.name="LDR";
 		}
-		else if(this.opcode.equals("0010")){
-			this.name="SUB";
+		else if(dp.equals("10")){
+			if(this.opcode.charAt(0) == '0'){
+				this.name="B";
+			}
+			else
+				this.name="BL";
 		}
-		else if(this.opcode.equals("1101")){
-			this.name="MOV";
-		}
-		else if(this.opcode.equals("1100")){
-			this.name="ORR";
-		}
-		else if(this.opcode.equals("0101")){
-			this.name="ADC";
-		}
-		else if(this.opcode.equals("1010")){
-			this.name="CMP";
-		}
-		else if(this.opcode.equals("0110")){
-			this.name="SBC";
-		}
-		else if(this.opcode.equals("0111")){
-			this.name="RSC";
-		}		
 	}
 }
 
@@ -133,7 +206,7 @@ public class Read
 		for(int i = 0; i < coded.size(); i++)
 		{
 			st = coded.get(i);
-			System.out.println(addresses.get(i) + "        " + st.condition + "    " + st.dp + "         " + st.immediate + "          " + st.opcode + "   " + st.s + "      " + st.op1 + "      " + st.dest + "      " + st.op2);
+			System.out.println(addresses.get(i) + "        " + st.condition + "    " + st.dp + "         " + st.immediate + "          " + st.opcode + "   " + st.s + "      " + st.op1 + "      " + st.dest + "      " + st.op2 + "   " + st.name);
 		}
 
 	}
