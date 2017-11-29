@@ -11,8 +11,9 @@ class Instruction
 	String op1;
 	String dest;
 	String op2;
+	String address;
 
-	Instruction(String bin)
+	Instruction(String address, String bin)
 	{
 		_31_28_ = bin.substring(0,4);
 		dp = bin.substring(4,6);
@@ -22,6 +23,7 @@ class Instruction
 		op1 = bin.substring(12,16);
 		dest = bin.substring(16,20);
 		op2 = bin.substring(20,32);
+		this.address = address;
 	}
 }
 
@@ -47,6 +49,11 @@ public class Read
 		return instructions;
 	}
 
+	public static void decode(Instruction i)
+	{
+
+	}
+
 	public static void main(String[] args) throws IOException{
 		ArrayList<String> instructions = new ArrayList<String>();
 
@@ -62,7 +69,7 @@ public class Read
 
 		ArrayList<Instruction> coded = new ArrayList<Instruction>();
 		for(int i = 0; i < instructions.size(); i++)
-			coded.add(new Instruction(instructions.get(i)));
+			coded.add(new Instruction(addresses.get(i), instructions.get(i)));
 
 		Instruction st = null;
 
@@ -71,7 +78,7 @@ public class Read
 		for(int i = 0; i < coded.size(); i++)
 		{
 			st = coded.get(i);
-			System.out.println(addresses.get(i) + "        " + st._31_28_ + "    " + st.dp + "         " + st.immediate + "          " + st.opcode + "   " + st.s + "      " + st.op1 + "      " + st.dest + "      " + st.op2);
+			System.out.println(st.address + "        " + st._31_28_ + "    " + st.dp + "         " + st.immediate + "          " + st.opcode + "   " + st.s + "      " + st.op1 + "      " + st.dest + "      " + st.op2);
 		}
 
 	}
