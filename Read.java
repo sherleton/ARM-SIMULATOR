@@ -263,7 +263,7 @@ class Instruction
 	}
 }
 
-public class Read
+class Read
 {
 	public static ArrayList<String> read(String file) throws IOException
 	{
@@ -285,7 +285,7 @@ public class Read
 		return instructions;
 	}
 
-	public static void main(String[] args) throws IOException{
+	public static void readingfile() throws IOException{
 		ArrayList<String> instructions = new ArrayList<String>();
 
 		instructions = read("abc.txt");
