@@ -4,7 +4,8 @@ import java.io.*;
 class Instruction
 {
 	static HashMap<String,Instruction> map=new HashMap<String,Instruction>();
-	
+	public static int[] registers = new int[15];
+
 	String name;
 	String cond;
 	String condition;
@@ -30,7 +31,7 @@ class Instruction
 		address=addr;
 		this.setname();
 		this.setcond();
-		map.put(address+opcode, this);		
+		map.put(address+opcode, this);	
 	}
 
 	private void setcond() {
@@ -145,10 +146,10 @@ class Instruction
 		}
 		else if(dp.equals("01")){
 			if(this.s.equals("0")){
-				this.name="STR";
+				this.name="STORE";
 			}
 			else
-				this.name="LDR";
+				this.name="ClassLoader";
 		}
 		else if(dp.equals("10")){
 			if(this.opcode.charAt(0) == '0'){
@@ -157,6 +158,108 @@ class Instruction
 			else
 				this.name="BL";
 		}
+	}
+
+	public void decode(){
+		String s = "Operation is " + this.name;
+		String shift = "";
+		long op1, op2, op3, dest, op4;
+
+		if(this.dp.equals("00"))
+		{
+			if(this.immediate.equals("1")){
+				op1 = Integer.parseInt(this.op1, 2);
+				op2 = Long.parseLong(this.op2, 2);
+				dest = Integer.parseInt(this.dest, 2);
+				s += ", First Operand is R" + op1 + ", Immediate Second Operand is " + op2 + ", Destination Register is R" + dest;
+			}
+			else
+			{
+				if(this.name.equals("MUL") || this.name.equals("MLA") || this.name.equals("MLS"))
+				{
+					op1 = Integer.parseInt(this.op2.substring(0, 4), 2);
+					op2 = Integer.parseInt(this.op2.substring(8, 12), 2);
+					op3 = Integer.parseInt(this.dest, 2);
+					dest = Integer.parseInt(this.op1, 2);
+					s += ", Rs is R" + op1 + ", Rm is R" + op2 + ", Rn is R" + op3 + ", Destination Register is R" + dest;
+				}
+				else
+				{
+					op1 = Integer.parseInt(this.op1, 2);
+					op2 = Integer.parseInt(this.op2.substring(8, 12), 2);
+					dest = Integer.parseInt(this.dest, 2);
+
+					s += ", First Operand is R" + op1 + ", Second Operand is " + op2 + ", Destination Register is R" + dest;	
+					
+					if(Long.parseLong(this.op2.substring(20, 28)) > 0)
+					{
+						if(this.op2.substring(25, 27).equals("00"))
+							shift = "LSL";
+						else if(this.op2.substring(25, 27).equals("01"))
+							shift = "LSR";
+						else if(this.op2.substring(25, 27).equals("10"))
+							shift = "ASR";
+						else
+							shift = "RSR";
+
+						if(this.op2.substring(27,28).equals("1"))
+						{
+							op4 = Integer.parseInt(this.op2.substring(20, 24), 2);
+							s += ", with a " + shift + " shift of value in Shift Register R" + op4;
+						}
+						else
+						{
+							op4 = Integer.parseInt(this.op2.substring(28, 25), 2);
+							s += ", with a " + shift + " shift of offset value " + op4;
+						}
+					}
+				}
+			}
+		}
+		else if(this.dp.equals("01"))
+		{
+			op1 = Integer.parseInt(this.op1, 2);
+			dest = Integer.parseInt(this.dest, 2);
+			if(immediate.equals("0"))
+			{
+				op2 = Long.parseLong(this.op2);
+				s += ", First Operand is R" + op1 + ", Immediate offset is " + op2 +", Destination Register is R" + dest;
+			}
+			else
+			{
+				op2 = Long.parseLong(this.op2.substring(28, 32));
+				s += ", First Operand is R" + op1 + ", Second Operand is R" + op2 + ", Destination Register is R" + dest;
+
+				if(Long.parseLong(this.op2.substring(20, 28)) > 0)
+				{
+					if(this.op2.substring(25, 27).equals("00"))
+						shift = "LSL";
+					else if(this.op2.substring(25, 27).equals("01"))
+						shift = "LSR";
+					else if(this.op2.substring(25, 27).equals("10"))
+						shift = "ASR";
+					else
+						shift = "RSR";
+
+					if(this.op2.substring(27,28).equals("1"))
+					{
+						op4 = Integer.parseInt(this.op2.substring(20, 24), 2);
+						s += ", with a " + shift + " shift of value in Shift Register R" + op4;
+					}
+					else
+					{
+						op4 = Integer.parseInt(this.op2.substring(28, 25), 2);
+						s += ", with a " + shift + " shift of offset value " + op4;
+					}
+				}
+			}
+		}
+		else if(dp.equals("10"))
+		{
+
+		}
+
+		System.out.println(s);
 	}
 }
 
