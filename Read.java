@@ -65,10 +65,13 @@ public class Read
 			coded.add(new Instruction(instructions.get(i)));
 
 		Instruction st = null;
+
+		System.out.println("address   " + "unknown   " + "dp   " + "immediate_bit  " + "opcode   " + "s     " + "op1       " + "dest           " + "op2");
+
 		for(int i = 0; i < coded.size(); i++)
 		{
 			st = coded.get(i);
-			System.out.println(addresses.get(i) + "   " + st._31_28_ + " " + st.dp + " " + st.immediate + " " + st.opcode + " " + st.s + " " + st.op1 + " " + st.dest + " " + st.op1);
+			System.out.println(addresses.get(i) + "        " + st._31_28_ + "    " + st.dp + "         " + st.immediate + "          " + st.opcode + "   " + st.s + "      " + st.op1 + "      " + st.dest + "      " + st.op2);
 		}
 
 	}
