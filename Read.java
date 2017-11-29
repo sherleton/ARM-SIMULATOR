@@ -149,7 +149,7 @@ class Instruction
 				this.name="STORE";
 			}
 			else
-				this.name="ClassLoader";
+				this.name="Load";
 		}
 		else if(dp.equals("10")){
 			if(this.opcode.charAt(0) == '0'){
@@ -181,7 +181,7 @@ class Instruction
 					op2 = Integer.parseInt(this.op2.substring(8, 12), 2);
 					op3 = Integer.parseInt(this.dest, 2);
 					dest = Integer.parseInt(this.op1, 2);
-					s += ", Rs is R" + op1 + ", Rm is R" + op2 + ", Rn is R" + op3 + ", Destination Register is R" + dest;
+					s += ", First Operand is R" + op1 + ", Second Operand is R" + op2 + ", Third Operand is R" + op3 + ", Destination Register is R" + dest;
 				}
 				else
 				{
@@ -191,25 +191,25 @@ class Instruction
 
 					s += ", First Operand is R" + op1 + ", Second Operand is " + op2 + ", Destination Register is R" + dest;	
 					
-					if(Long.parseLong(this.op2.substring(20, 28)) > 0)
+					if(Long.parseLong(this.op2.substring(0, 8), 2) > 0)
 					{
-						if(this.op2.substring(25, 27).equals("00"))
+						if(this.op2.substring(5, 7).equals("00"))
 							shift = "LSL";
-						else if(this.op2.substring(25, 27).equals("01"))
+						else if(this.op2.substring(5, 7).equals("01"))
 							shift = "LSR";
-						else if(this.op2.substring(25, 27).equals("10"))
+						else if(this.op2.substring(5, 7).equals("10"))
 							shift = "ASR";
 						else
 							shift = "RSR";
 
-						if(this.op2.substring(27,28).equals("1"))
+						if(this.op2.substring(7,8).equals("1"))
 						{
-							op4 = Integer.parseInt(this.op2.substring(20, 24), 2);
+							op4 = Integer.parseInt(this.op2.substring(0, 4), 2);
 							s += ", with a " + shift + " shift of value in Shift Register R" + op4;
 						}
 						else
 						{
-							op4 = Integer.parseInt(this.op2.substring(28, 25), 2);
+							op4 = Integer.parseInt(this.op2.substring(0, 5), 2);
 							s += ", with a " + shift + " shift of offset value " + op4;
 						}
 					}
@@ -222,41 +222,45 @@ class Instruction
 			dest = Integer.parseInt(this.dest, 2);
 			if(immediate.equals("0"))
 			{
-				op2 = Long.parseLong(this.op2);
+				op2 = Long.parseLong(this.op2, 2);
 				s += ", First Operand is R" + op1 + ", Immediate offset is " + op2 +", Destination Register is R" + dest;
 			}
 			else
 			{
-				op2 = Long.parseLong(this.op2.substring(28, 32));
+				op2 = Long.parseLong(this.op2.substring(8, 12), 2);
 				s += ", First Operand is R" + op1 + ", Second Operand is R" + op2 + ", Destination Register is R" + dest;
 
-				if(Long.parseLong(this.op2.substring(20, 28)) > 0)
-				{
-					if(this.op2.substring(25, 27).equals("00"))
-						shift = "LSL";
-					else if(this.op2.substring(25, 27).equals("01"))
-						shift = "LSR";
-					else if(this.op2.substring(25, 27).equals("10"))
-						shift = "ASR";
-					else
-						shift = "RSR";
+				if(Long.parseLong(this.op2.substring(0, 8), 2) > 0)
+					{
+						if(this.op2.substring(5, 7).equals("00"))
+							shift = "LSL";
+						else if(this.op2.substring(5, 7).equals("01"))
+							shift = "LSR";
+						else if(this.op2.substring(5, 7).equals("10"))
+							shift = "ASR";
+						else
+							shift = "RSR";
 
-					if(this.op2.substring(27,28).equals("1"))
-					{
-						op4 = Integer.parseInt(this.op2.substring(20, 24), 2);
-						s += ", with a " + shift + " shift of value in Shift Register R" + op4;
+						if(this.op2.substring(7,8).equals("1"))
+						{
+							op4 = Integer.parseInt(this.op2.substring(0, 4), 2);
+							s += ", with a " + shift + " shift of value in Shift Register R" + op4;
+						}
+						else
+						{
+							op4 = Integer.parseInt(this.op2.substring(0, 5), 2);
+							s += ", with a " + shift + " shift of offset value " + op4;
+						}
 					}
-					else
-					{
-						op4 = Integer.parseInt(this.op2.substring(28, 25), 2);
-						s += ", with a " + shift + " shift of offset value " + op4;
-					}
-				}
 			}
 		}
 		else if(dp.equals("10"))
 		{
-
+			op1 = Long.parseLong(this.op2.substring(8,12), 2);
+			if(this.opcode.substring(0,1).equals("0"))
+				s += ", called Branch at address " + op1;
+			else
+				s += ", called Branch with Link, at address " + op1;
 		}
 
 		System.out.println(s);
@@ -311,6 +315,9 @@ class Read
 			st = coded.get(i);
 			System.out.println(addresses.get(i) + "        " + st.condition + "    " + st.dp + "         " + st.immediate + "          " + st.opcode + "   " + st.s + "      " + st.op1 + "      " + st.dest + "      " + st.op2 + "   " + st.name);
 		}
+
+		for(int i = 0; i< coded.size(); i++)
+			coded.get(i).decode();
 
 	}
 }
