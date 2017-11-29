@@ -1,5 +1,6 @@
 import java.util.*;
 import java.io.*;
+import java.lang.Math.*;
 
 class Instruction
 {
@@ -146,10 +147,10 @@ class Instruction
 		}
 		else if(dp.equals("01")){
 			if(this.s.equals("0")){
-				this.name="STORE";
+				this.name="STR";
 			}
 			else
-				this.name="Load";
+				this.name="LDR";
 		}
 		else if(dp.equals("10")){
 			if(this.opcode.charAt(0) == '0'){
@@ -160,7 +161,7 @@ class Instruction
 		}
 	}
 
-	public void decode(){
+	public String decode(){
 		String s = "Operation is " + this.name;
 		String shift = "";
 		long op1, op2, op3, dest, op4;
@@ -181,7 +182,7 @@ class Instruction
 					op2 = Integer.parseInt(this.op2.substring(8, 12), 2);
 					op3 = Integer.parseInt(this.dest, 2);
 					dest = Integer.parseInt(this.op1, 2);
-					s += ", First Operand is R" + op1 + ", Second Operand is R" + op2 + ", Third Operand is R" + op3 + ", Destination Register is R" + dest;
+					s += ", Rs is R" + op1 + ", Rm is R" + op2 + ", Rn is R" + op3 + ", Destination Register is R" + dest;
 				}
 				else
 				{
@@ -191,7 +192,7 @@ class Instruction
 
 					s += ", First Operand is R" + op1 + ", Second Operand is " + op2 + ", Destination Register is R" + dest;	
 					
-					if(Long.parseLong(this.op2.substring(0, 8), 2) > 0)
+					if(Long.parseLong(this.op2.substring(0,8),2) > 0)
 					{
 						if(this.op2.substring(5, 7).equals("00"))
 							shift = "LSL";
@@ -222,36 +223,36 @@ class Instruction
 			dest = Integer.parseInt(this.dest, 2);
 			if(immediate.equals("0"))
 			{
-				op2 = Long.parseLong(this.op2, 2);
+				op2 = Long.parseLong(this.op2);
 				s += ", First Operand is R" + op1 + ", Immediate offset is " + op2 +", Destination Register is R" + dest;
 			}
 			else
 			{
-				op2 = Long.parseLong(this.op2.substring(8, 12), 2);
+				op2 = Long.parseLong(this.op2.substring(28, 12));
 				s += ", First Operand is R" + op1 + ", Second Operand is R" + op2 + ", Destination Register is R" + dest;
 
-				if(Long.parseLong(this.op2.substring(0, 8), 2) > 0)
-					{
-						if(this.op2.substring(5, 7).equals("00"))
-							shift = "LSL";
-						else if(this.op2.substring(5, 7).equals("01"))
-							shift = "LSR";
-						else if(this.op2.substring(5, 7).equals("10"))
-							shift = "ASR";
-						else
-							shift = "RSR";
+				if(Long.parseLong(this.op2.substring(0, 8),2) > 0)
+				{
+					if(this.op2.substring(5, 7).equals("00"))
+						shift = "LSL";
+					else if(this.op2.substring(5, 7).equals("01"))
+						shift = "LSR";
+					else if(this.op2.substring(5, 7).equals("10"))
+						shift = "ASR";
+					else
+						shift = "RSR";
 
-						if(this.op2.substring(7,8).equals("1"))
-						{
-							op4 = Integer.parseInt(this.op2.substring(0, 4), 2);
-							s += ", with a " + shift + " shift of value in Shift Register R" + op4;
-						}
-						else
-						{
-							op4 = Integer.parseInt(this.op2.substring(0, 5), 2);
-							s += ", with a " + shift + " shift of offset value " + op4;
-						}
+					if(this.op2.substring(7,8).equals("1"))
+					{
+						op4 = Integer.parseInt(this.op2.substring(0, 4), 2);
+						s += ", with a " + shift + " shift of value in Shift Register R" + op4;
 					}
+					else
+					{
+						op4 = Integer.parseInt(this.op2.substring(0, 5), 2);
+						s += ", with a " + shift + " shift of offset value " + op4;
+					}
+				}
 			}
 		}
 		else if(dp.equals("10"))
@@ -263,12 +264,14 @@ class Instruction
 				s += ", called Branch with Link, at address " + op1;
 		}
 
-		System.out.println(s);
+		return s;
 	}
+	
 }
 
 class Read
 {
+	public static int[] memory = new int[36864];
 	public static ArrayList<String> read(String file) throws IOException
 	{
 		ArrayList<String> instructions = new ArrayList<String>();
@@ -316,8 +319,402 @@ class Read
 			System.out.println(addresses.get(i) + "        " + st.condition + "    " + st.dp + "         " + st.immediate + "          " + st.opcode + "   " + st.s + "      " + st.op1 + "      " + st.dest + "      " + st.op2 + "   " + st.name);
 		}
 
-		for(int i = 0; i< coded.size(); i++)
-			coded.get(i).decode();
+		ArrayList<String> idecoded=new ArrayList<String>();
+		for(int i=0;i<coded.size();i++){
+			idecoded.add(coded.get(i).decode());
+		}
+		execute(coded,idecoded);
 
+	}
+	public static int find(ArrayList<Instruction> coded,String s){
+		for(int i=0;i<coded.size();i++){
+			if(coded.get(i).address.equals(s)){
+				return i;
+			}
+		}
+		return -1;
+	}
+	public static void execute(ArrayList<Instruction> coded ,ArrayList<String> a){
+		int pc=0;
+		while(pc<coded.size()-1){
+			//Instruction.registers[15]=c.get(pc).address;
+			String operation=a.get(pc).substring(13,16);
+			int compare=0;
+			if(operation.equals("MOV")){
+				int a1=Integer.parseInt(coded.get(pc).op1,2);
+				int b1=Integer.parseInt(coded.get(pc).dest,2);
+				int a2=Integer.parseInt(coded.get(pc).op2,2);
+				System.out.println("DECODE: "+a.get(pc));
+				if(coded.get(pc).immediate.equals("1")){
+
+					System.out.println("Read registers R"+a1+"=0");
+					System.out.println("EXECUTE: MOV "+a2+" in R"+b1);
+					Instruction.registers[b1]=a2;
+				}
+				else{
+					System.out.println("Read registers R"+a1+"=0");
+					System.out.println("EXECUTE: MOV "+Instruction.registers[a2]+" in R"+b1);
+					Instruction.registers[b1]=Instruction.registers[a2];
+				}
+				pc++;
+			}
+			else if(operation.equals("ADD")){
+				int a1=Integer.parseInt(coded.get(pc).op1,2);
+				int b1=Integer.parseInt(coded.get(pc).dest,2);
+				int a2=Integer.parseInt(coded.get(pc).op2,2);
+				System.out.println("DECODE: "+a.get(pc));
+				if(coded.get(pc).immediate.equals("1")){
+					System.out.println("Read registers R"+a1+"="+Instruction.registers[a1]);
+					System.out.println("EXECUTE: ADD "+Instruction.registers[a1]+" and "+a2);
+					Instruction.registers[b1]=Instruction.registers[a1]+a2;
+				}
+				else{
+					System.out.println("Read registers R"+a1+"="+Instruction.registers[a1]+" R"+a2+"="+Instruction.registers[a2]);
+					System.out.println("EXECUTE: ADD "+Instruction.registers[a1]+" and "+Instruction.registers[a2]);
+					Instruction.registers[b1]=Instruction.registers[a1]+Instruction.registers[a2];
+				}
+				pc++;
+				System.out.println(Instruction.registers[b1]);	
+			}
+			else if(operation.equals("SUB")){
+				int a1=Integer.parseInt(coded.get(pc).op1,2);
+				int b1=Integer.parseInt(coded.get(pc).dest,2);
+				int a2=Integer.parseInt(coded.get(pc).op2,2);
+				System.out.println("DECODE: "+a.get(pc));
+				if(coded.get(pc).immediate.equals("1")){
+					System.out.println("Read registers R"+a1+"="+Instruction.registers[a1]);
+					System.out.println("EXECUTE: SUB "+Instruction.registers[a1]+" and "+a2);
+					Instruction.registers[b1]=Instruction.registers[a1]-a2;
+				}
+				else{
+					System.out.println("Read registers R"+a1+"="+Instruction.registers[a1]+" R"+a2+"="+Instruction.registers[a2]);
+					System.out.println("EXECUTE: SUB "+Instruction.registers[a1]+" and "+Instruction.registers[a2]);
+					Instruction.registers[b1]=Instruction.registers[a1]-Instruction.registers[a2];
+				}
+				pc++;
+				System.out.println(Instruction.registers[b1]);	
+			}
+			else if(operation.equals("MUL")){
+				int a1 = Integer.parseInt(coded.get(pc).op2.substring(0, 4), 2);
+				int a2 = Integer.parseInt(coded.get(pc).op2.substring(8, 12), 2);
+				int a3 = Integer.parseInt(coded.get(pc).dest, 2);
+				int b1 = Integer.parseInt(coded.get(pc).op1, 2);				
+				System.out.println("DECODE: "+a.get(pc));
+				pc++;
+				System.out.println("Read registers R"+a1+"="+Instruction.registers[a1]+" R"+a2+"="+Instruction.registers[a2]+" R"+a3+"="+Instruction.registers[a3]);
+				System.out.println("EXECUTE: MUL "+Instruction.registers[a1]+" and "+Instruction.registers[a2]+", ADD "+Instruction.registers[a3]);
+				Instruction.registers[b1]=Instruction.registers[a1]*Instruction.registers[a2]+Instruction.registers[a3];
+				
+				System.out.println(Instruction.registers[b1]);
+			}
+			else if(operation.equals("AND")){
+				int a1=Integer.parseInt(coded.get(pc).op1,2);
+				int b1=Integer.parseInt(coded.get(pc).dest,2);
+				int a2=Integer.parseInt(coded.get(pc).op2,2);
+				System.out.println("DECODE: "+a.get(pc));
+				if(coded.get(pc).immediate.equals("1")){
+					System.out.println("Read registers R"+a1+"="+Instruction.registers[a1]);
+					System.out.println("EXECUTE: AND "+Instruction.registers[a1]+" and "+a2);
+					Instruction.registers[b1]=Instruction.registers[a1]&a2;
+				}
+				else{
+					System.out.println("Read registers R"+a1+"="+Instruction.registers[a1]+" R"+a2+"="+Instruction.registers[a2]);
+					System.out.println("EXECUTE: AND "+Instruction.registers[a1]+" and "+Instruction.registers[a2]);
+					Instruction.registers[b1]=Instruction.registers[a1]&Instruction.registers[a2];
+				}
+				pc++;
+				System.out.println(Instruction.registers[b1]);	
+			}
+			else if(operation.equals("ORR")){
+				int a1=Integer.parseInt(coded.get(pc).op1,2);
+				int b1=Integer.parseInt(coded.get(pc).dest,2);
+				int a2=Integer.parseInt(coded.get(pc).op2,2);
+				System.out.println("DECODE: "+a.get(pc));
+				if(coded.get(pc).immediate.equals("1")){
+					System.out.println("Read registers R"+a1+"="+Instruction.registers[a1]);
+					System.out.println("EXECUTE: ORR "+Instruction.registers[a1]+" and "+a2);
+					Instruction.registers[b1]=Instruction.registers[a1]|a2;
+				}
+				else{
+					System.out.println("Read registers R"+a1+"="+Instruction.registers[a1]+" R"+a2+"="+Instruction.registers[a2]);
+					System.out.println("EXECUTE: ORR "+Instruction.registers[a1]+" and "+Instruction.registers[a2]);
+					Instruction.registers[b1]=Instruction.registers[a1]|Instruction.registers[a2];
+				}
+				pc++;
+				System.out.println(Instruction.registers[b1]);	
+			}
+			else if(operation.equals("EOR")){
+				int a1=Integer.parseInt(coded.get(pc).op1,2);
+				int b1=Integer.parseInt(coded.get(pc).dest,2);
+				int a2=Integer.parseInt(coded.get(pc).op2,2);
+				System.out.println("DECODE: "+a.get(pc));
+				if(coded.get(pc).immediate.equals("1")){
+					System.out.println("Read registers R"+a1+"="+Instruction.registers[a1]);
+					System.out.println("EXECUTE: EOR "+Instruction.registers[a1]+" and "+a2);
+					Instruction.registers[b1]=Instruction.registers[a1]^a2;
+				}
+				else{
+					System.out.println("Read registers R"+a1+"="+Instruction.registers[a1]+" R"+a2+"="+Instruction.registers[a2]);
+					System.out.println("EXECUTE: EOR "+Instruction.registers[a1]+" and "+Instruction.registers[a2]);
+					Instruction.registers[b1]=Instruction.registers[a1]^Instruction.registers[a2];
+				}
+				pc++;
+				System.out.println(Instruction.registers[b1]);	
+			}
+			else if(operation.equals("LDR")||operation.equals("STR")){
+				int op2=0;
+				int op1=0,dest=0,op4=0;
+				int shift=0;
+				op1 = Integer.parseInt(coded.get(pc).op1, 2);
+				dest = Integer.parseInt(coded.get(pc).dest, 2);
+				System.out.println("DECODE: "+a.get(pc));
+
+				if(coded.get(pc).s.equals("1"))
+				{
+					if(coded.get(pc).immediate.equals("0"))
+					{
+						op2 = Integer.parseInt(coded.get(pc).op2, 2);
+
+						if(coded.get(pc).opcode.substring(0, 1).equals("1"))
+						{
+							if(coded.get(pc).opcode.substring(1, 2).equals("1"))
+							{
+								Instruction.registers[dest] = memory[Instruction.registers[op1] + op2];
+							}	
+							else
+							{
+								Instruction.registers[dest] = memory[Instruction.registers[op1] - op2];
+							}
+
+							if(coded.get(pc).opcode.substring(3, 4).equals("1"))
+								Instruction.registers[op1] = Instruction.registers[dest];
+						}
+						else
+						{
+							if(coded.get(pc).opcode.substring(1, 2).equals("1"))
+							{
+								Instruction.registers[dest] = memory[Instruction.registers[op1]];
+								Instruction.registers[op1] = memory[Instruction.registers[op1] + op2];
+							}	
+							else
+							{
+								Instruction.registers[dest] = memory[Instruction.registers[op1]];
+								Instruction.registers[op1] = memory[Instruction.registers[op1] - op2];
+							}	
+						}
+					}
+					else
+					{
+						op2 = Integer.parseInt(coded.get(pc).op2.substring(8, 12), 2);
+
+						if(Integer.parseInt(coded.get(pc).op2.substring(0, 8), 2) > 0)
+						{
+							if(coded.get(pc).op2.substring(7,8).equals("1"))
+							{
+								op4 = Integer.parseInt(coded.get(pc).op2.substring(0, 4), 2);
+								if(coded.get(pc).op2.substring(5, 7).equals("00"))
+									shift = (int)Math.pow(2, Instruction.registers[op4]);
+								else if(coded.get(pc).op2.substring(5, 7).equals("01"))
+									shift = (int)Math.pow(2, -Instruction.registers[op4]);
+							}
+							else
+							{
+								op4 = Integer.parseInt(coded.get(pc).op2.substring(0, 5), 2);
+								if(coded.get(pc).op2.substring(5, 7).equals("00"))
+									shift = (int)Math.pow(2, op4);
+								else if(coded.get(pc).op2.substring(5, 7).equals("01"))
+									shift = (int)Math.pow(2, -op4);
+							}
+						}
+						else
+							shift = 1;
+
+						if(coded.get(pc).opcode.substring(0, 1).equals("1"))
+						{
+							if(coded.get(pc).opcode.substring(1, 2).equals("1"))
+							{
+								Instruction.registers[dest] = memory[Instruction.registers[op1] + Instruction.registers[op2]*shift];
+							}	
+							else
+							{
+								Instruction.registers[dest] = memory[Instruction.registers[op1] - Instruction.registers[op2]*shift];
+							}
+
+							if(coded.get(pc).opcode.substring(3, 4).equals("1"))
+								Instruction.registers[op1] = Instruction.registers[dest];
+						}
+						else
+						{
+							if(coded.get(pc).opcode.substring(1, 2).equals("1"))
+							{
+								Instruction.registers[dest] = Instruction.registers[op1];
+								Instruction.registers[op1] = memory[Instruction.registers[op1] + Instruction.registers[op2]*shift];
+							}	
+							else
+							{
+								Instruction.registers[dest] = Instruction.registers[op1];
+								Instruction.registers[op1] = memory[Instruction.registers[op1] - Instruction.registers[op2]*shift];
+							}	
+						}
+					}
+				}
+				else
+				{
+					if(coded.get(pc).immediate.equals("0"))
+					{
+						op2 = Integer.parseInt(coded.get(pc).op2, 2);
+
+						if(coded.get(pc).opcode.substring(0, 1).equals("1"))
+						{
+							if(coded.get(pc).opcode.substring(1, 2).equals("1"))
+							{
+								memory[Instruction.registers[op1] + op2] = Instruction.registers[dest];
+							}	
+							else
+							{
+								memory[Instruction.registers[op1] - op2] = Instruction.registers[dest];
+							}
+
+							if(coded.get(pc).opcode.substring(3, 4).equals("1"))
+								Instruction.registers[op1] = Instruction.registers[dest];
+						}
+						else
+						{
+							if(coded.get(pc).opcode.substring(1, 2).equals("1"))
+							{
+								memory[Instruction.registers[op1]] = Instruction.registers[dest];
+								Instruction.registers[op1] = memory[Instruction.registers[op1] + op2];
+							}	
+							else
+							{
+								memory[Instruction.registers[op1]]  = Instruction.registers[dest];
+								Instruction.registers[op1] = memory[Instruction.registers[op1] - op2];
+							}	
+						}
+					}
+					else
+					{
+						op2 = Integer.parseInt(coded.get(pc).op2.substring(8, 12), 2);
+
+						if(Integer.parseInt(coded.get(pc).op2.substring(0, 8), 2) > 0)
+						{
+							if(coded.get(pc).op2.substring(7,8).equals("1"))
+							{
+								op4 = Integer.parseInt(coded.get(pc).op2.substring(0, 4), 2);
+								if(coded.get(pc).op2.substring(5, 7).equals("00"))
+									shift = (int)Math.pow(2, Instruction.registers[op4]);
+								else if(coded.get(pc).op2.substring(5, 7).equals("01"))
+									shift = (int)Math.pow(2, -Instruction.registers[op4]);
+							}
+							else
+							{
+								op4 = Integer.parseInt(coded.get(pc).op2.substring(0, 5), 2);
+								if(coded.get(pc).op2.substring(5, 7).equals("00"))
+									shift = (int)Math.pow(2, op4);
+								else if(coded.get(pc).op2.substring(5, 7).equals("01"))
+									shift = (int)Math.pow(2, -op4);
+							}
+						}
+						else
+							shift = 1;
+
+						if(coded.get(pc).opcode.substring(0, 1).equals("1"))
+						{
+							if(coded.get(pc).opcode.substring(1, 2).equals("1"))
+							{
+								memory[Instruction.registers[op1] + Instruction.registers[op2]*shift] = Instruction.registers[dest];
+							}	
+							else
+							{
+								memory[Instruction.registers[op1] - Instruction.registers[op2]*shift] = Instruction.registers[dest];
+							}
+
+							if(coded.get(pc).opcode.substring(3, 4).equals("1"))
+								Instruction.registers[op1] = Instruction.registers[dest];
+						}
+						else
+						{
+							if(coded.get(pc).opcode.substring(1, 2).equals("1"))
+							{
+								memory[Instruction.registers[op1]] = Instruction.registers[dest];
+								Instruction.registers[op1] = memory[Instruction.registers[op1] + Instruction.registers[op2]*shift];
+							}	
+							else
+							{
+								memory[Instruction.registers[op1]]  = Instruction.registers[dest];
+								Instruction.registers[op1] = memory[Instruction.registers[op1] - Instruction.registers[op2]*shift];
+							}	
+						}
+					}
+				}	
+			}
+			else if(operation.equals("CMP")){
+				int a1=Integer.parseInt(coded.get(pc).op1,2);
+				int a2=Integer.parseInt(coded.get(pc).op2,2);
+				System.out.println("DECODE: "+a.get(pc));
+				if(coded.get(pc).immediate.equals("1")){
+					compare=Instruction.registers[a1]-a2;
+				}
+				else{
+					compare=Instruction.registers[a1]-Instruction.registers[a2];
+				}
+				pc++;
+			}
+			else if(operation.equals("B")){
+				System.out.println("yellow");
+				String q=coded.get(pc).condition;
+				System.out.println("DECODE: "+a.get(pc));
+				if(q.equals("EQ")){
+					if(compare==0){
+						String a1=(coded.get(pc).op2.substring(8,12));
+						 a1="0x"+a1;
+						pc=find(coded,a1);
+					}
+				}
+				else if(q.equals("NE")){
+					if(compare!=0){
+						String a1=(coded.get(pc).op2.substring(8,12));
+						 a1="0x"+a1;
+						pc=find(coded,a1);
+					}
+				}
+				else if(q.equals("LT")){
+					if(compare<0){
+						String a1=(coded.get(pc).op2.substring(8,12));
+						 a1="0x"+a1;
+						pc=find(coded,a1);
+					}
+				}
+				else if(q.equals("GT")){
+					if(compare>0){
+						String a1=(coded.get(pc).op2.substring(8,12));
+						a1="0x"+a1;
+						pc=find(coded,a1);
+					}
+				}
+				else if(q.equals("GE")){
+					if(compare>=0){
+						String a1=(coded.get(pc).op2.substring(8,12));
+						 a1="0x"+a1;
+						pc=find(coded,a1);
+					}
+				}
+				else if(q.equals("LE")){
+					if(compare<=0){
+						String a1=(coded.get(pc).op2.substring(8,12));
+						 a1="0x"+a1;
+						pc=find(coded,a1);
+					}
+				}
+				else{
+					String a1=(coded.get(pc).op2.substring(8,12));
+					 a1="0x"+a1;
+					pc=find(coded,a1);
+				}
+			}
+			else{
+				pc++;
+			}
+		}
 	}
 }

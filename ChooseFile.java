@@ -14,9 +14,10 @@ public final class ChooseFile extends Application {
  
     public static String path=null;
     public static boolean flag=false;
- 
+    public static Stage stage;
     @Override
-    public void start(final Stage stage) {
+    public void start(final Stage fstage) {
+        stage=new Stage();
         stage.setTitle("Select Flie");
         FileChooser chooser = new FileChooser();
         Button openButton = new Button("Open a txt file");
@@ -24,26 +25,26 @@ public final class ChooseFile extends Application {
         Button submit=new Button("Submit File");
         
         openButton.setOnMouseClicked(e->{
-        	File file = chooser.showOpenDialog(stage);
+            File file = chooser.showOpenDialog(stage);
             if (file != null) 
             {
                 path=file.getAbsolutePath();
-                text.setText("	 "+file.getName());
-                System.out.println("hello1");
+                text.setText("   "+file.getName());
                 flag=true;
             }
         });
         submit.setOnMouseClicked(e ->{
-        	if(flag==true){
-        		try {
-    				Read.readingfile();
-    			} catch (Exception e1) {
-    				// TODO Auto-generated catch block
-    				e1.printStackTrace();
-    			}
-            	System.out.println("hello");
-            	flag=false;
-        	}
+            if(flag==true){
+                try {
+                    Read.readingfile();
+                    System.exit(0);
+
+                } catch (Exception e1) {
+                    // TODO Auto-generated catch block
+                    e1.printStackTrace();
+                }
+                flag=false;
+            }
         });
 //        openButton.setOnAction(
 //            new EventHandler<ActionEvent>() {
@@ -54,7 +55,7 @@ public final class ChooseFile extends Application {
 //                    if (file != null) 
 //                    {
 //                        path=file.getAbsolutePath();
-//                        text.setText("	 "+file.getName());
+//                        text.setText("     "+file.getName());
 //                        System.out.println("hello1");
 //                        flag=true;
 //                    }
