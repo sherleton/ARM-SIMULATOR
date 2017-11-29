@@ -319,11 +319,8 @@ class Read
 			System.out.println(addresses.get(i) + "        " + st.condition + "    " + st.dp + "         " + st.immediate + "          " + st.opcode + "   " + st.s + "      " + st.op1 + "      " + st.dest + "      " + st.op2 + "   " + st.name);
 		}
 
-		ArrayList<String> idecoded=new ArrayList<String>();
-		for(int i=0;i<coded.size();i++){
-			idecoded.add(coded.get(i).decode());
-		}
-		execute(coded,idecoded);
+		execute(coded);
+		System.out.println("EXIT");
 
 	}
 	public static int find(ArrayList<Instruction> coded,String s){
@@ -334,17 +331,18 @@ class Read
 		}
 		return -1;
 	}
-	public static void execute(ArrayList<Instruction> coded ,ArrayList<String> a){
+	public static void execute(ArrayList<Instruction> coded ){
 		int pc=0;
 		while(pc<coded.size()-1){
+			String a=coded.get(pc).decode();
 			//Instruction.registers[15]=c.get(pc).address;
-			String operation=a.get(pc).substring(13,16);
+			String operation=a.substring(13,16);
 			int compare=0;
 			if(operation.equals("MOV")){
 				int a1=Integer.parseInt(coded.get(pc).op1,2);
 				int b1=Integer.parseInt(coded.get(pc).dest,2);
 				int a2=Integer.parseInt(coded.get(pc).op2,2);
-				System.out.println("DECODE: "+a.get(pc));
+				System.out.println("DECODE: "+a);
 				if(coded.get(pc).immediate.equals("1")){
 
 					System.out.println("Read registers R"+a1+"=0");
@@ -356,13 +354,15 @@ class Read
 					System.out.println("EXECUTE: MOV "+Instruction.registers[a2]+" in R"+b1);
 					Instruction.registers[b1]=Instruction.registers[a2];
 				}
+				memory(coded.get(pc));
+				writeback(coded.get(pc));
 				pc++;
 			}
 			else if(operation.equals("ADD")){
 				int a1=Integer.parseInt(coded.get(pc).op1,2);
 				int b1=Integer.parseInt(coded.get(pc).dest,2);
 				int a2=Integer.parseInt(coded.get(pc).op2,2);
-				System.out.println("DECODE: "+a.get(pc));
+				System.out.println("DECODE: "+a);
 				if(coded.get(pc).immediate.equals("1")){
 					System.out.println("Read registers R"+a1+"="+Instruction.registers[a1]);
 					System.out.println("EXECUTE: ADD "+Instruction.registers[a1]+" and "+a2);
@@ -373,14 +373,15 @@ class Read
 					System.out.println("EXECUTE: ADD "+Instruction.registers[a1]+" and "+Instruction.registers[a2]);
 					Instruction.registers[b1]=Instruction.registers[a1]+Instruction.registers[a2];
 				}
+				memory(coded.get(pc));
+				writeback(coded.get(pc));
 				pc++;
-				System.out.println(Instruction.registers[b1]);	
 			}
 			else if(operation.equals("SUB")){
 				int a1=Integer.parseInt(coded.get(pc).op1,2);
 				int b1=Integer.parseInt(coded.get(pc).dest,2);
 				int a2=Integer.parseInt(coded.get(pc).op2,2);
-				System.out.println("DECODE: "+a.get(pc));
+				System.out.println("DECODE: "+a);
 				if(coded.get(pc).immediate.equals("1")){
 					System.out.println("Read registers R"+a1+"="+Instruction.registers[a1]);
 					System.out.println("EXECUTE: SUB "+Instruction.registers[a1]+" and "+a2);
@@ -391,27 +392,29 @@ class Read
 					System.out.println("EXECUTE: SUB "+Instruction.registers[a1]+" and "+Instruction.registers[a2]);
 					Instruction.registers[b1]=Instruction.registers[a1]-Instruction.registers[a2];
 				}
+				memory(coded.get(pc));
+				writeback(coded.get(pc));
 				pc++;
-				System.out.println(Instruction.registers[b1]);	
 			}
 			else if(operation.equals("MUL")){
 				int a1 = Integer.parseInt(coded.get(pc).op2.substring(0, 4), 2);
 				int a2 = Integer.parseInt(coded.get(pc).op2.substring(8, 12), 2);
 				int a3 = Integer.parseInt(coded.get(pc).dest, 2);
 				int b1 = Integer.parseInt(coded.get(pc).op1, 2);				
-				System.out.println("DECODE: "+a.get(pc));
+				System.out.println("DECODE: "+a);
 				pc++;
 				System.out.println("Read registers R"+a1+"="+Instruction.registers[a1]+" R"+a2+"="+Instruction.registers[a2]+" R"+a3+"="+Instruction.registers[a3]);
 				System.out.println("EXECUTE: MUL "+Instruction.registers[a1]+" and "+Instruction.registers[a2]+", ADD "+Instruction.registers[a3]);
 				Instruction.registers[b1]=Instruction.registers[a1]*Instruction.registers[a2]+Instruction.registers[a3];
-				
-				System.out.println(Instruction.registers[b1]);
+				memory(coded.get(pc));
+				writeback(coded.get(pc));
+				pc++;
 			}
 			else if(operation.equals("AND")){
 				int a1=Integer.parseInt(coded.get(pc).op1,2);
 				int b1=Integer.parseInt(coded.get(pc).dest,2);
 				int a2=Integer.parseInt(coded.get(pc).op2,2);
-				System.out.println("DECODE: "+a.get(pc));
+				System.out.println("DECODE: "+a);
 				if(coded.get(pc).immediate.equals("1")){
 					System.out.println("Read registers R"+a1+"="+Instruction.registers[a1]);
 					System.out.println("EXECUTE: AND "+Instruction.registers[a1]+" and "+a2);
@@ -422,14 +425,15 @@ class Read
 					System.out.println("EXECUTE: AND "+Instruction.registers[a1]+" and "+Instruction.registers[a2]);
 					Instruction.registers[b1]=Instruction.registers[a1]&Instruction.registers[a2];
 				}
+				memory(coded.get(pc));
+				writeback(coded.get(pc));
 				pc++;
-				System.out.println(Instruction.registers[b1]);	
 			}
 			else if(operation.equals("ORR")){
 				int a1=Integer.parseInt(coded.get(pc).op1,2);
 				int b1=Integer.parseInt(coded.get(pc).dest,2);
 				int a2=Integer.parseInt(coded.get(pc).op2,2);
-				System.out.println("DECODE: "+a.get(pc));
+				System.out.println("DECODE: "+a);
 				if(coded.get(pc).immediate.equals("1")){
 					System.out.println("Read registers R"+a1+"="+Instruction.registers[a1]);
 					System.out.println("EXECUTE: ORR "+Instruction.registers[a1]+" and "+a2);
@@ -440,14 +444,15 @@ class Read
 					System.out.println("EXECUTE: ORR "+Instruction.registers[a1]+" and "+Instruction.registers[a2]);
 					Instruction.registers[b1]=Instruction.registers[a1]|Instruction.registers[a2];
 				}
+				memory(coded.get(pc));
+				writeback(coded.get(pc));
 				pc++;
-				System.out.println(Instruction.registers[b1]);	
 			}
 			else if(operation.equals("EOR")){
 				int a1=Integer.parseInt(coded.get(pc).op1,2);
 				int b1=Integer.parseInt(coded.get(pc).dest,2);
 				int a2=Integer.parseInt(coded.get(pc).op2,2);
-				System.out.println("DECODE: "+a.get(pc));
+				System.out.println("DECODE: "+a);
 				if(coded.get(pc).immediate.equals("1")){
 					System.out.println("Read registers R"+a1+"="+Instruction.registers[a1]);
 					System.out.println("EXECUTE: EOR "+Instruction.registers[a1]+" and "+a2);
@@ -458,8 +463,9 @@ class Read
 					System.out.println("EXECUTE: EOR "+Instruction.registers[a1]+" and "+Instruction.registers[a2]);
 					Instruction.registers[b1]=Instruction.registers[a1]^Instruction.registers[a2];
 				}
+				memory(coded.get(pc));
+				writeback(coded.get(pc));
 				pc++;
-				System.out.println(Instruction.registers[b1]);	
 			}
 			else if(operation.equals("LDR")||operation.equals("STR")){
 				int op2=0;
@@ -467,7 +473,7 @@ class Read
 				int shift=0;
 				op1 = Integer.parseInt(coded.get(pc).op1, 2);
 				dest = Integer.parseInt(coded.get(pc).dest, 2);
-				System.out.println("DECODE: "+a.get(pc));
+				System.out.println("DECODE: "+a);
 
 				if(coded.get(pc).s.equals("1"))
 				{
@@ -646,24 +652,29 @@ class Read
 							}	
 						}
 					}
-				}	
+				}
+				memory(coded.get(pc));
+				writeback(coded.get(pc));
+				pc++;	
 			}
 			else if(operation.equals("CMP")){
 				int a1=Integer.parseInt(coded.get(pc).op1,2);
 				int a2=Integer.parseInt(coded.get(pc).op2,2);
-				System.out.println("DECODE: "+a.get(pc));
+				System.out.println("DECODE: "+a);
 				if(coded.get(pc).immediate.equals("1")){
 					compare=Instruction.registers[a1]-a2;
 				}
 				else{
 					compare=Instruction.registers[a1]-Instruction.registers[a2];
 				}
+				memory(coded.get(pc));
+				writeback(coded.get(pc));
 				pc++;
 			}
 			else if(operation.equals("B")){
 				System.out.println("yellow");
 				String q=coded.get(pc).condition;
-				System.out.println("DECODE: "+a.get(pc));
+				System.out.println("DECODE: "+a);
 				if(q.equals("EQ")){
 					if(compare==0){
 						String a1=(coded.get(pc).op2.substring(8,12));
@@ -713,7 +724,45 @@ class Read
 				}
 			}
 			else{
+				memory(coded.get(pc));
+				writeback(coded.get(pc));
 				pc++;
+			}
+			System.out.println("");
+		}
+	}
+	public static void memory(Instruction i){
+		if(i.name.equals("LDR")){
+			System.out.println("MEMORY: ");
+		}
+		else if(i.name.equals("STR")){
+			System.out.println("MEMORY: ");
+		}
+		else{
+			System.out.println("MEMORY: No memory operation");
+		}		
+	}
+	public static void writeback(Instruction i){
+		if(i.name.equals("LDR")){
+			System.out.println("WRITEBACK: ");
+		}
+		else if(i.name.equals("STR")){
+			System.out.println("WRITEBACK: ");
+		}
+		else if(i.name.equals("B")){
+			System.out.println("WRITEBACK: No writeback");
+		}
+		else if(i.name.equals("CMP")){
+			System.out.println("WRITEBACK: No writeback");
+		}
+		else{ 
+			int b1=Integer.parseInt(i.dest,2);
+			if(i.name.equals("MUL")){
+				b1=Integer.parseInt(i.op1,2);
+				System.out.println("WRITEBACK: "+Instruction.registers[b1]+" to R"+b1);
+			}
+			else{
+				System.out.println("WRITEBACK: "+Instruction.registers[b1]+" to R"+b1);	
 			}
 		}
 	}
