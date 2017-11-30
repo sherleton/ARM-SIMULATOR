@@ -416,7 +416,9 @@ class Read
 	 */
 	public static int find(ArrayList<Instruction> coded,String s){
 		for(int i=0;i<coded.size();i++){
-			if(coded.get(i).address.equals(s)){
+			String s1=coded.get(i).address.toUpperCase();
+			s=s.toUpperCase();
+			if(s1.equals(s)){
 				return i;
 			}
 		}
@@ -906,7 +908,7 @@ class Read
 				}
 				else{
 					System.out.println("Read registers R"+a1+"="+Instruction.registers[a1]+" R"+a2+"="+Instruction.registers[a2]);
-					System.out.println("EXECUTE: EOR "+Instruction.registers[a1]+" and "+Instruction.registers[a2]);
+					System.out.println("EXECUTE: CMP "+Instruction.registers[a1]+" and "+Instruction.registers[a2]);
 					compare=Instruction.registers[a1]-Instruction.registers[a2];
 				}
 				memory(coded.get(pc));
@@ -1192,7 +1194,7 @@ class Read
 	 */
 	public static void writeback(Instruction i){
 		if(i.name.equals("LDR")){
-			int b1= Integer.parseInt(coded.get(pc).dest, 2);
+			int b1= Integer.parseInt(i.dest, 2);
 			System.out.println("WRITEBACK: "+Instruction.registers[b1]+" to R"+b1);
 		}
 		else if(i.name.equals("STR")){
