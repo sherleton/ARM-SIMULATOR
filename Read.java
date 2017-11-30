@@ -2,6 +2,11 @@ import java.util.*;
 import java.io.*;
 import java.lang.Math.*;
 
+/**
+ * This class stores a instruction, object of this class stores all the of the instruction, this also contains a 
+ * HashMap which contains all the instructions in the input file and also contains functions like fetch and decode which helps in ARM-Simulator.
+ * @author Nikhil, Kshitiz, Apoorv
+ */
 class Instruction
 {
 	static HashMap<String,Instruction> map=new HashMap<String,Instruction>();
@@ -20,6 +25,12 @@ class Instruction
 	String address;
 	String nbin;
 
+	/**
+	 * Constructor of the Instruction object, also set its respective condition and command type 
+	 * @param addr Address of the instruction
+	 * @param bin  Instruction in binary format 	
+	 * @param n Instruction in hexadecimal code	    	
+	 */
 	Instruction(String addr,String bin,String n)
 	{
 		this.nbin=n;
@@ -36,7 +47,9 @@ class Instruction
 		this.setcond();
 		map.put(address+opcode, this);	
 	}
-
+	/**
+	 * This method sets the condition of the command of the instruction by decoding its bin value to the opcode of respective condition.
+	 */
 	private void setcond() {
 
 		if(this.condition.equals("0000")){
@@ -85,7 +98,9 @@ class Instruction
 			this.cond="AL";
 		}
 	}
-
+	/**
+	 * This method set the name of the instruction by matching the opcode of the instruction.
+	 */
 	private void setname() {
 
 		if(this.dp.equals("00")){
@@ -166,12 +181,20 @@ class Instruction
 		}
 	}
 	
+	/**
+	 * This method prints the instruction and its address in the memory
+	 */
 	public String fetch(){
 		String s="Fetch Instruction "+this.nbin+" from address "+this.address;
 		System.out.println(s);
 		return s;
 	}
-
+	/**
+	 * This method is used to decode the instruction in which it deals with the 4 types of instructions i.e.:
+	 * 1. Normal instructions example- MUL, ADD etc. 2. Branch Instructions in which we have to jump to some address
+	 * 3. Load/Store Instructions in which we have to access memory. 4. SWI command in which we have to print, exit the code etc. 
+	 * @return The decoded String we print on the console
+	 */
 	public String decode(){
 		String s = "Operation is " + this.name;
 		String shift = "";
@@ -291,13 +314,23 @@ class Instruction
 		return s;
 	}	
 }
-
+/**
+ * @author Apoorv, Nikhil, Kshitiz
+ *
+ */
 class Read
 {
 	public static int n = 36864;
 	public static int[] memory = new int[n];
 	public static Object r0;
 	public static int compare = 0;
+	
+	/**
+	 * This functions read the input file line by line and stores it in an ArrayList
+	 * @param file Path of the input file in which the instructions are to be read.
+	 * @return ArrayList of string in which each string has whole command with its's address
+	 * @throws IOException
+	 */
 	public static ArrayList<String> read(String file) throws IOException
 	{
 		ArrayList<String> instructions = new ArrayList<String>();
@@ -318,6 +351,10 @@ class Read
 		return instructions;
 	}
 
+	/**
+	 * Stores commands in instruction format and simulates all the instructions.
+	 * @throws IOException
+	 */
 	public static void readingfile() throws IOException{
 		ArrayList<String> instructions = new ArrayList<String>();
 
@@ -367,6 +404,12 @@ class Read
 		System.out.println("EXIT");
 
 	}
+	/**
+	 * This method returns the index of instruction if address "s", in Instruction arraylist "coded".
+	 * @param coded Is the arraylist of all the instructions in .MEM file converted into Instruction object
+	 * @param s Is the address of the instruction to find
+	 * @return return the index if found else returns -1
+	 */
 	public static int find(ArrayList<Instruction> coded,String s){
 		for(int i=0;i<coded.size();i++){
 			if(coded.get(i).address.equals(s)){
@@ -375,8 +418,15 @@ class Read
 		}
 		return -1;
 	}
+	/**
+	 * Whole simulation is done in this method, fetch,decode,execute,memory and write-back are implemented.
+	 * Code runs till all the instructions are executed or SWI-exit command is called.
+	 * @param coded ArrayList of the instructions to be simulated.
+	 * @throws IOException
+	 */
 	public static void execute(ArrayList<Instruction> coded ) throws IOException{
 		int pc=0;
+		@SuppressWarnings("resource")
 		Scanner b = new Scanner(System.in);
 		while(pc<coded.size()-1){
 			String a=coded.get(pc).decode();
@@ -894,6 +944,10 @@ class Read
 			System.out.println("");
 		}
 	}
+	/**
+	 * Prints the Load(Destination), Store(memory) values of the instruction(if it is of respective type).
+	 * @param i Instruction which is to be checked is there a memory operation or not.
+	 */
 	public static void memory(Instruction i){
 		if(i.name.equals("LDR")){
 			int dest = Integer.parseInt(i.op1, 2), shift = 1, op4;
@@ -983,6 +1037,10 @@ class Read
 			System.out.println("MEMORY: No memory operation");
 		}		
 	}
+	/**
+	 * Prints that if there is a write-back or not, and if yes then in which registers the write-back is done.
+	 * @param i Instruction which is to be checked that it involves write-back or not.
+	 */
 	public static void writeback(Instruction i){
 		if(i.name.equals("LDR")){
 			System.out.println("WRITEBACK: No Writeback");

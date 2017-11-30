@@ -10,11 +10,19 @@ import javafx.scene.layout.VBox;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
  
+/**
+ * Class used to create a GUI interface to select the .MEM file from windows, this eliminate the need to determine 
+ * the path of file every timea different file is to be loaded in ARM-Simulator.This class uses JavaFX to create stages and filechooser.
+ * @author Kshitiz, Nikhil, Apoorv
+ * 
+ */
 public final class ChooseFile extends Application {
  
+	
     public static String path=null;
     public static boolean flag=false;
     public static Stage stage;
+
     @Override
     public void start(final Stage fstage) {
         stage=new Stage();
@@ -46,23 +54,7 @@ public final class ChooseFile extends Application {
                 flag=false;
             }
         });
-//        openButton.setOnAction(
-//            new EventHandler<ActionEvent>() {
-//                @Override
-//                public void handle(final ActionEvent e) 
-//                {
-//                    File file = chooser.showOpenDialog(stage);
-//                    if (file != null) 
-//                    {
-//                        path=file.getAbsolutePath();
-//                        text.setText("     "+file.getName());
-//                        System.out.println("hello1");
-//                        flag=true;
-//                    }
-//                }
-//        });
-//        
-        final GridPane inputGridP = new GridPane();
+        GridPane inputGridP = new GridPane();
         GridPane.setConstraints(openButton, 0, 0);
         GridPane.setConstraints(text, 0, 5);
         GridPane.setConstraints(submit,0, 9);
