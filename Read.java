@@ -314,6 +314,7 @@ class Instruction
 	}	
 }
 /**
+ * This class reads the instruction from the file and then the simulation is initiated here.
  * @author Apoorv, Nikhil, Kshitiz
  *
  */
@@ -1072,7 +1073,7 @@ class Read
 					Instruction.registers[0] = (int)r0;
 				}
 				else{
-					
+
 					memory(coded.get(pc));
 					writeback(coded.get(pc));
 					return -1;
@@ -1191,7 +1192,8 @@ class Read
 	 */
 	public static void writeback(Instruction i){
 		if(i.name.equals("LDR")){
-			System.out.println("WRITEBACK: No Writeback");
+			int b1= Integer.parseInt(coded.get(pc).dest, 2);
+			System.out.println("WRITEBACK: "+Instruction.registers[b1]+" to R"+b1);
 		}
 		else if(i.name.equals("STR")){
 			System.out.println("WRITEBACK: No Writeback");

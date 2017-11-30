@@ -18,7 +18,7 @@ import javafx.stage.Stage;
  */
 public final class ChooseFile extends Application {
  
-	
+    
     public static String path=null;
     public static boolean flag=false;
     public static Stage stage;
@@ -28,7 +28,7 @@ public final class ChooseFile extends Application {
         stage=new Stage();
         stage.setTitle("Select Flie");
         FileChooser chooser = new FileChooser();
-        Button openButton = new Button("Open a txt file");
+        Button openButton = new Button("Open a MEM file");
         Label text=new Label("     Select File");
         Button submit=new Button("Submit File");
         
