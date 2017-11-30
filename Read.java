@@ -381,6 +381,7 @@ class Read
 		while(pc<coded.size()-1){
 			String a=coded.get(pc).decode();
 			//Instruction.registers[15]=c.get(pc).address;
+			coded.get(pc).fetch();
 			String operation=a.split(",")[0].split(" ")[2];
 			if(operation.equals("MOV")){
 				int a1=Integer.parseInt(coded.get(pc).op1,2);
@@ -539,7 +540,7 @@ class Read
 								if(coded.get(pc).opcode.substring(1, 2).equals("1"))
 									Instruction.registers[dest] = memory[(Instruction.registers[op1] + op2 + n) % n];
 								else
-									Instruction.registers[dest] = memory[(Instruction.registers[op1] - op2 + n) % n];
+									Instruction.registers[dest] = memory[(Instruction.registers[op1] + n - op2) % n];
 							}
 						}
 						else
@@ -590,26 +591,26 @@ class Read
 									Instruction.registers[op1] += (Instruction.registers[op2]*shift);
 								else
 									Instruction.registers[op1] -= (Instruction.registers[op2]*shift);
-								Instruction.registers[dest] = memory[Instruction.registers[op1] % n];
+								Instruction.registers[dest] = memory[(Instruction.registers[op1] + n) % n];
 							}
 							else
 							{
 								if(coded.get(pc).opcode.substring(1, 2).equals("1"))
-									Instruction.registers[dest] = memory[(Instruction.registers[op1] + (Instruction.registers[op2]*shift)) % n];
+									Instruction.registers[dest] = memory[(Instruction.registers[op1] + (Instruction.registers[op2]*shift) + n) % n];
 								else
-									Instruction.registers[dest] = memory[(Instruction.registers[op1] - (Instruction.registers[op2]*shift)) % n];
+									Instruction.registers[dest] = memory[(Instruction.registers[op1] + n - (Instruction.registers[op2]*shift)) % n];
 							}
 						}
 						else
 						{
 							if(coded.get(pc).opcode.substring(1, 2).equals("1"))
 							{
-								Instruction.registers[dest] = memory[Instruction.registers[op1] % n];
+								Instruction.registers[dest] = memory[(Instruction.registers[op1] + n) % n];
 								Instruction.registers[op1] = Instruction.registers[op1] + (Instruction.registers[op2]*shift);
 							}	
 							else
 							{
-								Instruction.registers[dest] = memory[Instruction.registers[op1] % n];
+								Instruction.registers[dest] = memory[(Instruction.registers[op1] + n) % n];
 								Instruction.registers[op1] = Instruction.registers[op1] - (Instruction.registers[op2]*shift);
 							}
 						}
@@ -629,26 +630,26 @@ class Read
 									Instruction.registers[op1] += op2;
 								else
 									Instruction.registers[op1] -= op2;
-								memory[Instruction.registers[op1]%n] = Instruction.registers[dest];
+								memory[(Instruction.registers[op1] + n) %n] = Instruction.registers[dest];
 							}
 							else
 							{
 								if(coded.get(pc).opcode.substring(1, 2).equals("1"))
 									memory[(Instruction.registers[op1] + op2 + n) % n] = Instruction.registers[dest];
 								else
-									memory[(Instruction.registers[op1] - op2 + n) % n] = Instruction.registers[dest];
+									memory[(Instruction.registers[op1] + n - op2) % n] = Instruction.registers[dest];
 							}
 						}
 						else
 						{
 							if(coded.get(pc).opcode.substring(1, 2).equals("1"))
 							{
-								memory[Instruction.registers[op1] % n] = Instruction.registers[dest];
+								memory[(Instruction.registers[op1] + n) % n] = Instruction.registers[dest];
 								Instruction.registers[op1] = Instruction.registers[op1] + op2;
 							}	
 							else
 							{
-								memory[Instruction.registers[op1] % n]  = Instruction.registers[dest];
+								memory[(Instruction.registers[op1] + n) % n]  = Instruction.registers[dest];
 								Instruction.registers[op1] = Instruction.registers[op1] - op2;
 							}	
 						}
@@ -687,26 +688,26 @@ class Read
 									Instruction.registers[op1] += Instruction.registers[op2]*shift;
 								else
 									Instruction.registers[op1] -= Instruction.registers[op2]*shift;
-								memory[Instruction.registers[op1]%n] = Instruction.registers[dest];
+								memory[(Instruction.registers[op1] + n) % n] = Instruction.registers[dest];
 							}
 							else
 							{
 								if(coded.get(pc).opcode.substring(1, 2).equals("1"))
-									memory[(Instruction.registers[op1] + Instruction.registers[op2]*shift) % n] = Instruction.registers[dest];
+									memory[(Instruction.registers[op1] + Instruction.registers[op2]*shift + n) % n] = Instruction.registers[dest];
 								else
-									memory[(Instruction.registers[op1] - Instruction.registers[op2]*shift) % n] = Instruction.registers[dest];
+									memory[(Instruction.registers[op1] + n - Instruction.registers[op2]*shift) % n] = Instruction.registers[dest];
 							}
 						}
 						else
 						{
 							if(coded.get(pc).opcode.substring(1, 2).equals("1"))
 							{
-								memory[Instruction.registers[op1] % n] = Instruction.registers[dest];
+								memory[(Instruction.registers[op1] + n) % n] = Instruction.registers[dest];
 								Instruction.registers[op1] = Instruction.registers[op1] + Instruction.registers[op2]*shift;
 							}	
 							else
 							{
-								memory[Instruction.registers[op1] % n]  = Instruction.registers[dest];
+								memory[(Instruction.registers[op1] + n) % n]  = Instruction.registers[dest];
 								Instruction.registers[op1] = Instruction.registers[op1] - Instruction.registers[op2]*shift;
 							}
 						}
