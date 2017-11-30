@@ -370,6 +370,7 @@ class Read
 	public static int find(ArrayList<Instruction> coded,String s){
 		for(int i=0;i<coded.size();i++){
 			if(coded.get(i).address.equals(s)){
+				System.out.println(coded.get(i).address+"  "+s);
 				return i;
 			}
 		}
@@ -777,13 +778,19 @@ class Read
 				
 				dec = Integer.parseInt(a2, 2);
 				dec = Integer.parseInt(i.address.substring(2), 16) + dec;
-				a1 = Integer.toString(dec);
-				System.out.println(a1);
-
+				dec=dec%(coded.size()*4);
+				a1 = Integer.toString(dec,16);
+				a1.toUpperCase();
+				memory(coded.get(pc));
+				writeback(coded.get(pc));
 				if(q.equals("EQ")){
 					if(compare==0){
-						 a1="0x"+a1;
+						a1="0x"+a1;
 						pc=find(coded,a1);
+					}
+					else{
+
+						pc++;
 					}
 				}
 				else if(q.equals("NE")){
@@ -791,11 +798,19 @@ class Read
 						 a1="0x"+a1;
 						pc=find(coded,a1);
 					}
+					else{
+
+						pc++;
+					}
 				}
 				else if(q.equals("LT")){
 					if(compare<0){
 						 a1="0x"+a1;
 						pc=find(coded,a1);
+					}
+					else{
+
+						pc++;
 					}
 				}
 				else if(q.equals("GT")){
@@ -803,11 +818,19 @@ class Read
 						a1="0x"+a1;
 						pc=find(coded,a1);
 					}
+					else{
+
+						pc++;
+					}
 				}
 				else if(q.equals("GE")){
 					if(compare>=0){
 						 a1="0x"+a1;
 						pc=find(coded,a1);
+					}
+					else{
+
+						pc++;
 					}
 				}
 				else if(q.equals("LE")){
@@ -815,10 +838,16 @@ class Read
 						 a1="0x"+a1;
 						pc=find(coded,a1);
 					}
+					else{
+
+						pc++;
+					}
 				}
 				else{
-					 a1="0x"+a1;
+					a1="0x"+a1;
 					pc=find(coded,a1);
+					
+						
 				}
 			}
 			else if(operation.equals("SWI")){
