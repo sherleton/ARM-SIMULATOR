@@ -453,6 +453,26 @@ class Read
 				writeback(coded.get(pc));
 				pc++;
 			}
+			else if(operation.equals("MVN")){
+				int a1=Integer.parseInt(coded.get(pc).op1,2);
+				int b1=Integer.parseInt(coded.get(pc).dest,2);
+				int a2=Integer.parseInt(coded.get(pc).op2,2);
+				System.out.println("DECODE: "+a);
+				if(coded.get(pc).immediate.equals("1")){
+
+					System.out.println("Read registers R"+a1+"=0");
+					System.out.println("EXECUTE: MOV "+a2+" in R"+b1);
+					Instruction.registers[b1]=~a2;
+				}
+				else{
+					System.out.println("Read registers R"+a1+"=0");
+					System.out.println("EXECUTE: MOV "+Instruction.registers[a2]+" in R"+b1);
+					Instruction.registers[b1]=~Instruction.registers[a2];
+				}
+				memory(coded.get(pc));
+				writeback(coded.get(pc));
+				pc++;
+			}
 			else if(operation.equals("ADD")){
 				int a1=Integer.parseInt(coded.get(pc).op1,2);
 				int b1=Integer.parseInt(coded.get(pc).dest,2);
@@ -772,9 +792,13 @@ class Read
 				int a2=Integer.parseInt(coded.get(pc).op2,2);
 				System.out.println("DECODE: "+a);
 				if(coded.get(pc).immediate.equals("1")){
+					System.out.println("Read registers R"+a1+"="+Instruction.registers[a1]);
+					System.out.println("EXECUTE: CMP "+Instruction.registers[a1]+" and "+a2);
 					compare=Instruction.registers[a1]-a2;
 				}
 				else{
+					System.out.println("Read registers R"+a1+"="+Instruction.registers[a1]+" R"+a2+"="+Instruction.registers[a2]);
+					System.out.println("EXECUTE: EOR "+Instruction.registers[a1]+" and "+Instruction.registers[a2]);
 					compare=Instruction.registers[a1]-Instruction.registers[a2];
 				}
 				memory(coded.get(pc));
