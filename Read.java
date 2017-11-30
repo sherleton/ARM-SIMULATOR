@@ -401,6 +401,9 @@ class Read
 		}
 
 		execute(coded);
+		coded.get(coded.size()-1).fetch();
+		memory(coded.get(coded.size()-1));
+		System.out.println("EXIT");
 		System.out.println("EXIT");
 
 	}
@@ -430,69 +433,25 @@ class Read
 		Scanner b = new Scanner(System.in);
 		while(pc<coded.size()-1){
 			String a=coded.get(pc).decode();
-			String q=coded.get(pc).cond;
 			//Instruction.registers[15]=c.get(pc).address;
 			coded.get(pc).fetch();
 			String operation=a.split(",")[0].split(" ")[2];
-
-			int flag = 0;
-			if(q.equals("EQ")){
-				if(compare==0){
-					flag = 1;	
-				}
-			}
-			else if(q.equals("NE")){
-				if(compare!=0){
-					 flag = 1;
-				}
-			}
-			else if(q.equals("LT")){
-				if(compare<0){
-					flag = 1;
-				}
-			}
-			else if(q.equals("GT")){
-				if(compare>0){
-					flag = 1;
-				}
-			}
-			else if(q.equals("GE")){
-				if(compare>=0){
-					flag = 1;
-				}
-			}
-			else if(q.equals("LE")){
-				if(compare<=0){
-					flag = 1;
-				}
-			}
-			else if(q.equals("AL")){
-				if(compare<=0){
-					flag = 1;
-				}
-			}
-
 			if(operation.equals("MOV")){
 				int a1=Integer.parseInt(coded.get(pc).op1,2);
 				int b1=Integer.parseInt(coded.get(pc).dest,2);
 				int a2=Integer.parseInt(coded.get(pc).op2,2);
 				System.out.println("DECODE: "+a);
-				if(flag == 1)
-				{
-					if(coded.get(pc).immediate.equals("1")){
+				if(coded.get(pc).immediate.equals("1")){
 
-						System.out.println("Read registers R"+a1+"=0");
-						System.out.println("EXECUTE: MOV "+a2+" in R"+b1);
-						Instruction.registers[b1]=a2;
-					}
-					else{
-						System.out.println("Read registers R"+a1+"=0");
-						System.out.println("EXECUTE: MOV "+Instruction.registers[a2]+" in R"+b1);
-						Instruction.registers[b1]=Instruction.registers[a2];
-					}
+					System.out.println("Read registers R"+a1+"=0");
+					System.out.println("EXECUTE: MOV "+a2+" in R"+b1);
+					Instruction.registers[b1]=a2;
 				}
-				else
-					System.out.println("No Execution as condition not followed!!");
+				else{
+					System.out.println("Read registers R"+a1+"=0");
+					System.out.println("EXECUTE: MOV "+Instruction.registers[a2]+" in R"+b1);
+					Instruction.registers[b1]=Instruction.registers[a2];
+				}
 				memory(coded.get(pc));
 				writeback(coded.get(pc));
 				pc++;
@@ -502,23 +461,17 @@ class Read
 				int b1=Integer.parseInt(coded.get(pc).dest,2);
 				int a2=Integer.parseInt(coded.get(pc).op2,2);
 				System.out.println("DECODE: "+a);
+				if(coded.get(pc).immediate.equals("1")){
 
-				if(flag == 1)
-				{
-					if(coded.get(pc).immediate.equals("1")){
-
-						System.out.println("Read registers R"+a1+"=0");
-						System.out.println("EXECUTE: MOV "+a2+" in R"+b1);
-						Instruction.registers[b1]=~a2;
-					}
-					else{
-						System.out.println("Read registers R"+a1+"=0");
-						System.out.println("EXECUTE: MOV "+Instruction.registers[a2]+" in R"+b1);
-						Instruction.registers[b1]=~Instruction.registers[a2];
-					}
+					System.out.println("Read registers R"+a1+"=0");
+					System.out.println("EXECUTE: MOV "+a2+" in R"+b1);
+					Instruction.registers[b1]=~a2;
 				}
-				else
-					System.out.println("No Execution as condition not followed!!");
+				else{
+					System.out.println("Read registers R"+a1+"=0");
+					System.out.println("EXECUTE: MOV "+Instruction.registers[a2]+" in R"+b1);
+					Instruction.registers[b1]=~Instruction.registers[a2];
+				}
 				memory(coded.get(pc));
 				writeback(coded.get(pc));
 				pc++;
@@ -528,21 +481,16 @@ class Read
 				int b1=Integer.parseInt(coded.get(pc).dest,2);
 				int a2=Integer.parseInt(coded.get(pc).op2,2);
 				System.out.println("DECODE: "+a);
-				if(flag == 1)
-				{
-					if(coded.get(pc).immediate.equals("1")){
-						System.out.println("Read registers R"+a1+"="+Instruction.registers[a1]);
-						System.out.println("EXECUTE: ADD "+Instruction.registers[a1]+" and "+a2);
-						Instruction.registers[b1]=Instruction.registers[a1]+a2;
-					}
-					else{
-						System.out.println("Read registers R"+a1+"="+Instruction.registers[a1]+" R"+a2+"="+Instruction.registers[a2]);
-						System.out.println("EXECUTE: ADD "+Instruction.registers[a1]+" and "+Instruction.registers[a2]);
-						Instruction.registers[b1]=Instruction.registers[a1]+Instruction.registers[a2];
-					}
+				if(coded.get(pc).immediate.equals("1")){
+					System.out.println("Read registers R"+a1+"="+Instruction.registers[a1]);
+					System.out.println("EXECUTE: ADD "+Instruction.registers[a1]+" and "+a2);
+					Instruction.registers[b1]=Instruction.registers[a1]+a2;
 				}
-				else
-					System.out.println("No Execution as condition not followed!!");
+				else{
+					System.out.println("Read registers R"+a1+"="+Instruction.registers[a1]+" R"+a2+"="+Instruction.registers[a2]);
+					System.out.println("EXECUTE: ADD "+Instruction.registers[a1]+" and "+Instruction.registers[a2]);
+					Instruction.registers[b1]=Instruction.registers[a1]+Instruction.registers[a2];
+				}
 				memory(coded.get(pc));
 				writeback(coded.get(pc));
 				pc++;
@@ -552,21 +500,16 @@ class Read
 				int b1=Integer.parseInt(coded.get(pc).dest,2);
 				int a2=Integer.parseInt(coded.get(pc).op2,2);
 				System.out.println("DECODE: "+a);
-				if(flag == 1)
-				{
-					if(coded.get(pc).immediate.equals("1")){
-						System.out.println("Read registers R"+a1+"="+Instruction.registers[a1]);
-						System.out.println("EXECUTE: SUB "+Instruction.registers[a1]+" and "+a2);
-						Instruction.registers[b1]=Instruction.registers[a1]-a2;
-					}
-					else{
-						System.out.println("Read registers R"+a1+"="+Instruction.registers[a1]+" R"+a2+"="+Instruction.registers[a2]);
-						System.out.println("EXECUTE: SUB "+Instruction.registers[a1]+" and "+Instruction.registers[a2]);
-						Instruction.registers[b1]=Instruction.registers[a1]-Instruction.registers[a2];
-					}
+				if(coded.get(pc).immediate.equals("1")){
+					System.out.println("Read registers R"+a1+"="+Instruction.registers[a1]);
+					System.out.println("EXECUTE: SUB "+Instruction.registers[a1]+" and "+a2);
+					Instruction.registers[b1]=Instruction.registers[a1]-a2;
 				}
-				else
-					System.out.println("No Execution as condition not followed!!");
+				else{
+					System.out.println("Read registers R"+a1+"="+Instruction.registers[a1]+" R"+a2+"="+Instruction.registers[a2]);
+					System.out.println("EXECUTE: SUB "+Instruction.registers[a1]+" and "+Instruction.registers[a2]);
+					Instruction.registers[b1]=Instruction.registers[a1]-Instruction.registers[a2];
+				}
 				memory(coded.get(pc));
 				writeback(coded.get(pc));
 				pc++;
@@ -577,14 +520,9 @@ class Read
 				int a3 = Integer.parseInt(coded.get(pc).dest, 2);
 				int b1 = Integer.parseInt(coded.get(pc).op1, 2);				
 				System.out.println("DECODE: "+a);
-				if(flag == 1)
-				{
-					System.out.println("Read registers R"+a1+"="+Instruction.registers[a1]+" R"+a2+"="+Instruction.registers[a2]+" R"+a3+"="+Instruction.registers[a3]);
-					System.out.println("EXECUTE: MUL "+Instruction.registers[a1]+" and "+Instruction.registers[a2]+", ADD "+Instruction.registers[a3]);
-					Instruction.registers[b1]=Instruction.registers[a1]*Instruction.registers[a2]+Instruction.registers[a3];
-				}
-				else
-					System.out.println("No Execution as condition not followed!!");
+				System.out.println("Read registers R"+a1+"="+Instruction.registers[a1]+" R"+a2+"="+Instruction.registers[a2]+" R"+a3+"="+Instruction.registers[a3]);
+				System.out.println("EXECUTE: MUL "+Instruction.registers[a1]+" and "+Instruction.registers[a2]+", ADD "+Instruction.registers[a3]);
+				Instruction.registers[b1]=Instruction.registers[a1]*Instruction.registers[a2]+Instruction.registers[a3];
 				memory(coded.get(pc));
 				writeback(coded.get(pc));
 				pc++;
@@ -594,22 +532,16 @@ class Read
 				int b1=Integer.parseInt(coded.get(pc).dest,2);
 				int a2=Integer.parseInt(coded.get(pc).op2,2);
 				System.out.println("DECODE: "+a);
-				if(flag == 1)
-				{
-					if(coded.get(pc).immediate.equals("1")){
+				if(coded.get(pc).immediate.equals("1")){
 					System.out.println("Read registers R"+a1+"="+Instruction.registers[a1]);
 					System.out.println("EXECUTE: AND "+Instruction.registers[a1]+" and "+a2);
 					Instruction.registers[b1]=Instruction.registers[a1]&a2;
-					}
-					else{
-						System.out.println("Read registers R"+a1+"="+Instruction.registers[a1]+" R"+a2+"="+Instruction.registers[a2]);
-						System.out.println("EXECUTE: AND "+Instruction.registers[a1]+" and "+Instruction.registers[a2]);
-						Instruction.registers[b1]=Instruction.registers[a1]&Instruction.registers[a2];
-					}
 				}
-				else
-					System.out.println("No Execution as condition not followed!!");
-				
+				else{
+					System.out.println("Read registers R"+a1+"="+Instruction.registers[a1]+" R"+a2+"="+Instruction.registers[a2]);
+					System.out.println("EXECUTE: AND "+Instruction.registers[a1]+" and "+Instruction.registers[a2]);
+					Instruction.registers[b1]=Instruction.registers[a1]&Instruction.registers[a2];
+				}
 				memory(coded.get(pc));
 				writeback(coded.get(pc));
 				pc++;
@@ -619,22 +551,16 @@ class Read
 				int b1=Integer.parseInt(coded.get(pc).dest,2);
 				int a2=Integer.parseInt(coded.get(pc).op2,2);
 				System.out.println("DECODE: "+a);
-				if(flag == 1)
-				{
-					if(coded.get(pc).immediate.equals("1")){
+				if(coded.get(pc).immediate.equals("1")){
 					System.out.println("Read registers R"+a1+"="+Instruction.registers[a1]);
 					System.out.println("EXECUTE: ORR "+Instruction.registers[a1]+" and "+a2);
 					Instruction.registers[b1]=Instruction.registers[a1]|a2;
-					}
-					else{
-						System.out.println("Read registers R"+a1+"="+Instruction.registers[a1]+" R"+a2+"="+Instruction.registers[a2]);
-						System.out.println("EXECUTE: ORR "+Instruction.registers[a1]+" and "+Instruction.registers[a2]);
-						Instruction.registers[b1]=Instruction.registers[a1]|Instruction.registers[a2];
-					}
 				}
-				else
-					System.out.println("No Execution as condition not followed!!");
-			
+				else{
+					System.out.println("Read registers R"+a1+"="+Instruction.registers[a1]+" R"+a2+"="+Instruction.registers[a2]);
+					System.out.println("EXECUTE: ORR "+Instruction.registers[a1]+" and "+Instruction.registers[a2]);
+					Instruction.registers[b1]=Instruction.registers[a1]|Instruction.registers[a2];
+				}
 				memory(coded.get(pc));
 				writeback(coded.get(pc));
 				pc++;
@@ -644,21 +570,16 @@ class Read
 				int b1=Integer.parseInt(coded.get(pc).dest,2);
 				int a2=Integer.parseInt(coded.get(pc).op2,2);
 				System.out.println("DECODE: "+a);
-				if(flag == 1)
-				{
-					if(coded.get(pc).immediate.equals("1")){
+				if(coded.get(pc).immediate.equals("1")){
 					System.out.println("Read registers R"+a1+"="+Instruction.registers[a1]);
 					System.out.println("EXECUTE: EOR "+Instruction.registers[a1]+" and "+a2);
 					Instruction.registers[b1]=Instruction.registers[a1]^a2;
-					}
-					else{
-						System.out.println("Read registers R"+a1+"="+Instruction.registers[a1]+" R"+a2+"="+Instruction.registers[a2]);
-						System.out.println("EXECUTE: EOR "+Instruction.registers[a1]+" and "+Instruction.registers[a2]);
-						Instruction.registers[b1]=Instruction.registers[a1]^Instruction.registers[a2];
-					}
 				}
-				else
-					System.out.println("No Execution as condition not followed!!");
+				else{
+					System.out.println("Read registers R"+a1+"="+Instruction.registers[a1]+" R"+a2+"="+Instruction.registers[a2]);
+					System.out.println("EXECUTE: EOR "+Instruction.registers[a1]+" and "+Instruction.registers[a2]);
+					Instruction.registers[b1]=Instruction.registers[a1]^Instruction.registers[a2];
+				}
 				memory(coded.get(pc));
 				writeback(coded.get(pc));
 				pc++;
@@ -669,223 +590,202 @@ class Read
 				int shift=0;
 				op1 = Integer.parseInt(coded.get(pc).op1, 2);
 				dest = Integer.parseInt(coded.get(pc).dest, 2);
-				System.out.print("DECODE: "+a);
+				System.out.println("DECODE: "+a);
 
-				if(flag == 1)
+				if(coded.get(pc).s.equals("1"))
 				{
-					if(coded.get(pc).s.equals("1"))
+					if(coded.get(pc).immediate.equals("0"))
 					{
-						if(coded.get(pc).immediate.equals("0"))
-						{
-							op2 = Integer.parseInt(coded.get(pc).op2, 2);
+						op2 = Integer.parseInt(coded.get(pc).op2, 2);
 
-							if(coded.get(pc).opcode.substring(0, 1).equals("1"))
+						if(coded.get(pc).opcode.substring(0, 1).equals("1"))
+						{
+							if(coded.get(pc).opcode.substring(3, 4).equals("1"))
 							{
-								if(coded.get(pc).opcode.substring(3, 4).equals("1"))
-								{
-									if(coded.get(pc).opcode.substring(1, 2).equals("1"))
-										Instruction.registers[op1] += op2;
-									else
-										Instruction.registers[op1] -= op2;
-									Instruction.registers[dest] = memory[Instruction.registers[op1] % n];
-									a += ", with write-back";
-								}
+								if(coded.get(pc).opcode.substring(1, 2).equals("1"))
+									Instruction.registers[op1] += op2;
 								else
-								{
-									if(coded.get(pc).opcode.substring(1, 2).equals("1"))
-										Instruction.registers[dest] = memory[(Instruction.registers[op1] + op2 + n) % n];
-									else
-										Instruction.registers[dest] = memory[(Instruction.registers[op1] + n - op2) % n];
-									a += ", with no writeback";
-								}
-								a += " and pre-indexing.";
+									Instruction.registers[op1] -= op2;
+								Instruction.registers[dest] = memory[Instruction.registers[op1] % n];
 							}
 							else
 							{
 								if(coded.get(pc).opcode.substring(1, 2).equals("1"))
-								{
-									Instruction.registers[dest] = memory[(Instruction.registers[op1] + n) % n];
-									Instruction.registers[op1] = Instruction.registers[op1] + op2;
-								}	
+									Instruction.registers[dest] = memory[(Instruction.registers[op1] + op2 + n) % n];
 								else
-								{
-									Instruction.registers[dest] = memory[(Instruction.registers[op1] + n) % n];
-									Instruction.registers[op1] = Instruction.registers[op1] - op2;
-								}
-								a += " and post-indexing.";
+									Instruction.registers[dest] = memory[(Instruction.registers[op1] + n - op2) % n];
 							}
 						}
 						else
 						{
-							op2 = Integer.parseInt(coded.get(pc).op2.substring(8, 12), 2);
-
-							if(Integer.parseInt(coded.get(pc).op2.substring(0, 8), 2) > 0)
+							if(coded.get(pc).opcode.substring(1, 2).equals("1"))
 							{
-								if(coded.get(pc).op2.substring(7,8).equals("1"))
-								{
-									op4 = Integer.parseInt(coded.get(pc).op2.substring(0, 4), 2);
-									if(coded.get(pc).op2.substring(5, 7).equals("00"))
-										shift = (int)Math.pow(2, Instruction.registers[op4]);
-									else if(coded.get(pc).op2.substring(5, 7).equals("01"))
-										shift = (int)Math.pow(2, -Instruction.registers[op4]);
-								}
-								else
-								{
-									op4 = Integer.parseInt(coded.get(pc).op2.substring(0, 5), 2);
-									if(coded.get(pc).op2.substring(5, 7).equals("00"))
-										shift = (int)Math.pow(2, op4);
-									else if(coded.get(pc).op2.substring(5, 7).equals("01"))
-										shift = (int)Math.pow(2, -op4);
-								}
-							}
-							else
-								shift = 1;
-
-							if(coded.get(pc).opcode.substring(0, 1).equals("1"))
-							{
-								if(coded.get(pc).opcode.substring(3, 4).equals("1"))
-								{
-									if(coded.get(pc).opcode.substring(1, 2).equals("1"))
-										Instruction.registers[op1] += (Instruction.registers[op2]*shift);
-									else
-										Instruction.registers[op1] -= (Instruction.registers[op2]*shift);
-									Instruction.registers[dest] = memory[(Instruction.registers[op1] + n) % n];
-									a += ", with writeback";
-								}
-								else
-								{
-									if(coded.get(pc).opcode.substring(1, 2).equals("1"))
-										Instruction.registers[dest] = memory[(Instruction.registers[op1] + (Instruction.registers[op2]*shift) + n) % n];
-									else
-										Instruction.registers[dest] = memory[(Instruction.registers[op1] + n - (Instruction.registers[op2]*shift)) % n];
-									a += ", with no writeback";
-								}
-								a += " and pre-indexing";
-							}
+								Instruction.registers[dest] = memory[(Instruction.registers[op1] + n) % n];
+								Instruction.registers[op1] = Instruction.registers[op1] + op2;
+							}	
 							else
 							{
-								if(coded.get(pc).opcode.substring(1, 2).equals("1"))
-								{
-									Instruction.registers[dest] = memory[(Instruction.registers[op1] + n) % n];
-									Instruction.registers[op1] = Instruction.registers[op1] + (Instruction.registers[op2]*shift);
-								}	
-								else
-								{
-									Instruction.registers[dest] = memory[(Instruction.registers[op1] + n) % n];
-									Instruction.registers[op1] = Instruction.registers[op1] - (Instruction.registers[op2]*shift);
-								}
-								a += " and post-indexing";
+								Instruction.registers[dest] = memory[(Instruction.registers[op1] + n) % n];
+								Instruction.registers[op1] = Instruction.registers[op1] - op2;
 							}
 						}
 					}
 					else
 					{
-						if(coded.get(pc).immediate.equals("0"))
-						{
-							op2 = Integer.parseInt(coded.get(pc).op2, 2);
+						op2 = Integer.parseInt(coded.get(pc).op2.substring(8, 12), 2);
 
-							if(coded.get(pc).opcode.substring(0, 1).equals("1"))
+						if(Integer.parseInt(coded.get(pc).op2.substring(0, 8), 2) > 0)
+						{
+							if(coded.get(pc).op2.substring(7,8).equals("1"))
 							{
-								if(coded.get(pc).opcode.substring(3, 4).equals("1"))
-								{
-									if(coded.get(pc).opcode.substring(1, 2).equals("1"))
-										Instruction.registers[op1] += op2;
-									else
-										Instruction.registers[op1] -= op2;
-									memory[(Instruction.registers[op1] + n) %n] = Instruction.registers[dest];
-									a += ", with writeback";
-								}
+								op4 = Integer.parseInt(coded.get(pc).op2.substring(0, 4), 2);
+								if(coded.get(pc).op2.substring(5, 7).equals("00"))
+									shift = (int)Math.pow(2, Instruction.registers[op4]);
+								else if(coded.get(pc).op2.substring(5, 7).equals("01"))
+									shift = (int)Math.pow(2, -Instruction.registers[op4]);
+							}
+							else
+							{
+								op4 = Integer.parseInt(coded.get(pc).op2.substring(0, 5), 2);
+								if(coded.get(pc).op2.substring(5, 7).equals("00"))
+									shift = (int)Math.pow(2, op4);
+								else if(coded.get(pc).op2.substring(5, 7).equals("01"))
+									shift = (int)Math.pow(2, -op4);
+							}
+						}
+						else
+							shift = 1;
+
+						if(coded.get(pc).opcode.substring(0, 1).equals("1"))
+						{
+							if(coded.get(pc).opcode.substring(3, 4).equals("1"))
+							{
+								if(coded.get(pc).opcode.substring(1, 2).equals("1"))
+									Instruction.registers[op1] += (Instruction.registers[op2]*shift);
 								else
-								{
-									if(coded.get(pc).opcode.substring(1, 2).equals("1"))
-										memory[(Instruction.registers[op1] + op2 + n) % n] = Instruction.registers[dest];
-									else
-										memory[(Instruction.registers[op1] + n - op2) % n] = Instruction.registers[dest];
-									a += ", with no writeback";
-								}
-								a += " and pre-indexing";
+									Instruction.registers[op1] -= (Instruction.registers[op2]*shift);
+								Instruction.registers[dest] = memory[(Instruction.registers[op1] + n) % n];
 							}
 							else
 							{
 								if(coded.get(pc).opcode.substring(1, 2).equals("1"))
-								{
-									memory[(Instruction.registers[op1] + n) % n] = Instruction.registers[dest];
-									Instruction.registers[op1] = Instruction.registers[op1] + op2;
-								}	
+									Instruction.registers[dest] = memory[(Instruction.registers[op1] + (Instruction.registers[op2]*shift) + n) % n];
 								else
-								{
-									memory[(Instruction.registers[op1] + n) % n]  = Instruction.registers[dest];
-									Instruction.registers[op1] = Instruction.registers[op1] - op2;
-								}	
-								a += " and post-indexing";
+									Instruction.registers[dest] = memory[(Instruction.registers[op1] + n - (Instruction.registers[op2]*shift)) % n];
 							}
 						}
 						else
 						{
-							op2 = Integer.parseInt(coded.get(pc).op2.substring(8, 12), 2);
-
-							if(Integer.parseInt(coded.get(pc).op2.substring(0, 8), 2) > 0)
+							if(coded.get(pc).opcode.substring(1, 2).equals("1"))
 							{
-								if(coded.get(pc).op2.substring(7,8).equals("1"))
-								{
-									op4 = Integer.parseInt(coded.get(pc).op2.substring(0, 4), 2);
-									if(coded.get(pc).op2.substring(5, 7).equals("00"))
-										shift = (int)Math.pow(2, Instruction.registers[op4]);
-									else if(coded.get(pc).op2.substring(5, 7).equals("01"))
-										shift = (int)Math.pow(2, -Instruction.registers[op4]);
-								}
-								else
-								{
-									op4 = Integer.parseInt(coded.get(pc).op2.substring(0, 5), 2);
-									if(coded.get(pc).op2.substring(5, 7).equals("00"))
-										shift = (int)Math.pow(2, op4);
-									else if(coded.get(pc).op2.substring(5, 7).equals("01"))
-										shift = (int)Math.pow(2, -op4);
-								}
-							}
-							else
-								shift = 1;
-
-							if(coded.get(pc).opcode.substring(0, 1).equals("1"))
-							{
-								if(coded.get(pc).opcode.substring(3, 4).equals("1"))
-								{
-									if(coded.get(pc).opcode.substring(1, 2).equals("1"))
-										Instruction.registers[op1] += Instruction.registers[op2]*shift;
-									else
-										Instruction.registers[op1] -= Instruction.registers[op2]*shift;
-									memory[(Instruction.registers[op1] + n) % n] = Instruction.registers[dest];
-									a += ", with writeback";
-								}
-								else
-								{
-									if(coded.get(pc).opcode.substring(1, 2).equals("1"))
-										memory[(Instruction.registers[op1] + Instruction.registers[op2]*shift + n) % n] = Instruction.registers[dest];
-									else
-										memory[(Instruction.registers[op1] + n - Instruction.registers[op2]*shift) % n] = Instruction.registers[dest];
-									a += ", with no writeback";
-								}
-								a += " and pre-indexing";
-							}
+								Instruction.registers[dest] = memory[(Instruction.registers[op1] + n) % n];
+								Instruction.registers[op1] = Instruction.registers[op1] + (Instruction.registers[op2]*shift);
+							}	
 							else
 							{
-								if(coded.get(pc).opcode.substring(1, 2).equals("1"))
-								{
-									memory[(Instruction.registers[op1] + n) % n] = Instruction.registers[dest];
-									Instruction.registers[op1] = Instruction.registers[op1] + Instruction.registers[op2]*shift;
-								}	
-								else
-								{
-									memory[(Instruction.registers[op1] + n) % n]  = Instruction.registers[dest];
-									Instruction.registers[op1] = Instruction.registers[op1] - Instruction.registers[op2]*shift;
-								}
-								a += " and post-indexing";
+								Instruction.registers[dest] = memory[(Instruction.registers[op1] + n) % n];
+								Instruction.registers[op1] = Instruction.registers[op1] - (Instruction.registers[op2]*shift);
 							}
 						}
 					}
 				}
 				else
-					System.out.println("No Execution as condition not followed!!");
+				{
+					if(coded.get(pc).immediate.equals("0"))
+					{
+						op2 = Integer.parseInt(coded.get(pc).op2, 2);
+
+						if(coded.get(pc).opcode.substring(0, 1).equals("1"))
+						{
+							if(coded.get(pc).opcode.substring(3, 4).equals("1"))
+							{
+								if(coded.get(pc).opcode.substring(1, 2).equals("1"))
+									Instruction.registers[op1] += op2;
+								else
+									Instruction.registers[op1] -= op2;
+								memory[(Instruction.registers[op1] + n) %n] = Instruction.registers[dest];
+							}
+							else
+							{
+								if(coded.get(pc).opcode.substring(1, 2).equals("1"))
+									memory[(Instruction.registers[op1] + op2 + n) % n] = Instruction.registers[dest];
+								else
+									memory[(Instruction.registers[op1] + n - op2) % n] = Instruction.registers[dest];
+							}
+						}
+						else
+						{
+							if(coded.get(pc).opcode.substring(1, 2).equals("1"))
+							{
+								memory[(Instruction.registers[op1] + n) % n] = Instruction.registers[dest];
+								Instruction.registers[op1] = Instruction.registers[op1] + op2;
+							}	
+							else
+							{
+								memory[(Instruction.registers[op1] + n) % n]  = Instruction.registers[dest];
+								Instruction.registers[op1] = Instruction.registers[op1] - op2;
+							}	
+						}
+					}
+					else
+					{
+						op2 = Integer.parseInt(coded.get(pc).op2.substring(8, 12), 2);
+
+						if(Integer.parseInt(coded.get(pc).op2.substring(0, 8), 2) > 0)
+						{
+							if(coded.get(pc).op2.substring(7,8).equals("1"))
+							{
+								op4 = Integer.parseInt(coded.get(pc).op2.substring(0, 4), 2);
+								if(coded.get(pc).op2.substring(5, 7).equals("00"))
+									shift = (int)Math.pow(2, Instruction.registers[op4]);
+								else if(coded.get(pc).op2.substring(5, 7).equals("01"))
+									shift = (int)Math.pow(2, -Instruction.registers[op4]);
+							}
+							else
+							{
+								op4 = Integer.parseInt(coded.get(pc).op2.substring(0, 5), 2);
+								if(coded.get(pc).op2.substring(5, 7).equals("00"))
+									shift = (int)Math.pow(2, op4);
+								else if(coded.get(pc).op2.substring(5, 7).equals("01"))
+									shift = (int)Math.pow(2, -op4);
+							}
+						}
+						else
+							shift = 1;
+
+						if(coded.get(pc).opcode.substring(0, 1).equals("1"))
+						{
+							if(coded.get(pc).opcode.substring(3, 4).equals("1"))
+							{
+								if(coded.get(pc).opcode.substring(1, 2).equals("1"))
+									Instruction.registers[op1] += Instruction.registers[op2]*shift;
+								else
+									Instruction.registers[op1] -= Instruction.registers[op2]*shift;
+								memory[(Instruction.registers[op1] + n) % n] = Instruction.registers[dest];
+							}
+							else
+							{
+								if(coded.get(pc).opcode.substring(1, 2).equals("1"))
+									memory[(Instruction.registers[op1] + Instruction.registers[op2]*shift + n) % n] = Instruction.registers[dest];
+								else
+									memory[(Instruction.registers[op1] + n - Instruction.registers[op2]*shift) % n] = Instruction.registers[dest];
+							}
+						}
+						else
+						{
+							if(coded.get(pc).opcode.substring(1, 2).equals("1"))
+							{
+								memory[(Instruction.registers[op1] + n) % n] = Instruction.registers[dest];
+								Instruction.registers[op1] = Instruction.registers[op1] + Instruction.registers[op2]*shift;
+							}	
+							else
+							{
+								memory[(Instruction.registers[op1] + n) % n]  = Instruction.registers[dest];
+								Instruction.registers[op1] = Instruction.registers[op1] - Instruction.registers[op2]*shift;
+							}
+						}
+					}
+				}
 				memory(coded.get(pc));
 				writeback(coded.get(pc));
 				pc++;	
@@ -909,7 +809,7 @@ class Read
 				pc++;
 			}
 			else if(operation.equals("B")){
-				q=coded.get(pc).cond;
+				String q=coded.get(pc).cond;
 				System.out.println("DECODE: "+a);
 				
 				Instruction i = coded.get(pc);
