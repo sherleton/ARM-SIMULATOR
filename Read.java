@@ -399,9 +399,11 @@ class Read
 			System.out.println(addresses.get(i) + "        " + st.condition + "    " + st.dp + "         " + st.immediate + "          " + st.opcode + "   " + st.s + "      " + st.op1 + "      " + st.dest + "      " + st.op2 + "   " + st.name);
 		}
 
-		execute(coded);
-		coded.get(coded.size()-1).fetch();
-		memory(coded.get(coded.size()-1)); 
+		int a0=execute(coded);
+		if(a0==0){
+			coded.get(coded.size()-1).fetch();
+			memory(coded.get(coded.size()-1)); 
+		}
 		System.out.println("EXIT");
 
 	}
@@ -425,7 +427,7 @@ class Read
 	 * @param coded ArrayList of the instructions to be simulated.
 	 * @throws IOException
 	 */
-	public static void execute(ArrayList<Instruction> coded ) throws IOException{
+	public static int execute(ArrayList<Instruction> coded ) throws IOException{
 		int pc=0;
 		@SuppressWarnings("resource")
 		Scanner b = new Scanner(System.in);
@@ -434,7 +436,7 @@ class Read
 			String q=coded.get(pc).cond;
 			//Instruction.registers[15]=c.get(pc).address;
 			coded.get(pc).fetch();
-			String operation=a.split(",")[0].split(" ")[2];
+			String operation=coded.get(pc).name;
 
 			int flag = 0;
 			if(q.equals("EQ")){
@@ -1038,28 +1040,43 @@ class Read
 			}
 			else if(operation.equals("SWI")){
 				String str = coded.get(pc).op2.substring(4,12);
-				System.out.println("DECODE: "+a);
-				System.out.print("EXECUTE: ");
 				if(str.equals("00000000")){
+					System.out.println("DECODE: "+a);
+					System.out.print("EXECUTE: ");
 					System.out.println("Display Character : " + r0);
 				}
 				else if(str.equals("00000010") || str.equals("01101001")){
+					System.out.println("DECODE: "+a);
+					System.out.print("EXECUTE: ");
 					System.out.println("Display String + " + r0);
 				}
 				else if(str.equals("01101010")){
+					System.out.println("DECODE: "+a);
+					System.out.print("EXECUTE: ");
 					System.out.println("Read String : ");
 					System.out.println("Enter the string : ");
 					r0 = new String(b.nextLine());
 					Instruction.registers[1] = 0;
 				}
 				else if(str.equals("01101011")){
+					System.out.println("DECODE: "+a);
+					System.out.print("EXECUTE: ");
 					System.out.println("Display Integer : " + Instruction.registers[1]);
 				}
 				else if(str.equals("01101100")){
+					System.out.println("DECODE: "+a);
+					System.out.print("EXECUTE: ");
 					System.out.println("Read Integer : ");
 					System.out.println("Enter the Integer : ");
 					r0 = new Integer(b.nextInt());
 					Instruction.registers[0] = (int)r0;
+				}
+				else{
+					
+					memory(coded.get(pc));
+					writeback(coded.get(pc));
+					return -1;
+					
 				}
 				memory(coded.get(pc));
 				writeback(coded.get(pc));
@@ -1073,6 +1090,7 @@ class Read
 			
 			System.out.println("");
 		}
+		return 0;
 	}
 	/**
 	 * Prints the Load(Destination), Store(memory) values of the instruction(if it is of respective type).
