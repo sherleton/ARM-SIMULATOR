@@ -18,10 +18,11 @@ class Instruction
 	String dest;
 	String op2;
 	String address;
+	String nbin;
 
-	Instruction(String addr,String bin)
+	Instruction(String addr,String bin,String n)
 	{
-		System.out.println(bin);
+		this.nbin=n;
 		condition = bin.substring(0,4);
 		dp = bin.substring(4,6);
 		immediate = bin.substring(6,7);
@@ -163,6 +164,12 @@ class Instruction
 		else if(dp.equals("11")){
 			this.name="SWI";
 		}
+	}
+	
+	public String fetch(){
+		String s="Fetch Instruction "+this.nbin+" from address "+this.address;
+		System.out.println(s);
+		return s;
 	}
 
 	public String decode(){
@@ -314,13 +321,15 @@ class Read
 	public static void readingfile() throws IOException{
 		ArrayList<String> instructions = new ArrayList<String>();
 
-		instructions = read("fib.mem");
+		instructions = read(ChooseFile.path);
 
 		ArrayList<String> addresses = new ArrayList<String>();
+		String[] temp=new String[instructions.size()];
 
 		for(int i = 0; i < instructions.size(); i++)
 		{
 			addresses.add(instructions.get(i).split(" ")[0]);
+			temp[i]=instructions.get(i).split(" ")[1].toLowerCase();
 			instructions.set(i, Long.toBinaryString(Long.parseLong(instructions.get(i).split(" ")[1].substring(2), 16)));
 		}
 
@@ -340,8 +349,9 @@ class Read
 		}
 
 		ArrayList<Instruction> coded = new ArrayList<Instruction>();
-		for(int i = 0; i < instructions.size(); i++)
-			coded.add(new Instruction(addresses.get(i), instructions.get(i)));
+		for(int i = 0; i < instructions.size(); i++){
+			coded.add(new Instruction(addresses.get(i), instructions.get(i),temp[i]));
+		}
 
 		Instruction st = null;
 
