@@ -18,9 +18,10 @@ class Instruction
 	String dest;
 	String op2;
 	String address;
-	String branchvalue;
+
 	Instruction(String addr,String bin)
 	{
+		System.out.println(bin);
 		condition = bin.substring(0,4);
 		dp = bin.substring(4,6);
 		immediate = bin.substring(6,7);
@@ -32,56 +33,55 @@ class Instruction
 		address=addr;
 		this.setname();
 		this.setcond();
-		branchvalue="";
 		map.put(address+opcode, this);	
 	}
 
 	private void setcond() {
 
 		if(this.condition.equals("0000")){
-			cond="EQ";
+			this.cond="EQ";
 		}
 		else if(this.condition.equals("0001")){
-			cond="NE";
+			this.cond="NE";
 		}
 		else if(this.condition.equals("0010")){
-			cond="CS";
+			this.cond="CS";
 		}
 		else if(this.condition.equals("0011")){
-			cond="CC";
+			this.cond="CC";
 		}
 		else if(this.condition.equals("0100")){
-			cond="MI";
+			this.cond="MI";
 		}
 		else if(this.condition.equals("0101")){
-			cond="PL";
+			this.cond="PL";
 		}
 		else if(this.condition.equals("0110")){
-			cond="VS";
+			this.cond="VS";
 		}
 		else if(this.condition.equals("0111")){
-			cond="VC";
+			this.cond="VC";
 		}
 		else if(this.condition.equals("1000")){
-			cond="HI";
+			this.cond="HI";
 		}
 		else if(this.condition.equals("1001")){
-			cond="LS";
+			this.cond="LS";
 		}
 		else if(this.condition.equals("1010")){
-			cond="GE";
+			this.cond="GE";
 		}
 		else if(this.condition.equals("1011")){
-			cond="LT";
+			this.cond="LT";
 		}
 		else if(this.condition.equals("1100")){
-			cond="GT";
+			this.cond="GT";
 		}
 		else if(this.condition.equals("1101")){
-			cond="LE";
+			this.cond="LE";
 		}		
 		else if(this.condition.equals("1110")){
-			cond="AL";
+			this.cond="AL";
 		}
 	}
 
@@ -159,6 +159,9 @@ class Instruction
 			}
 			else
 				this.name="BL";
+		}
+		else if(dp.equals("11")){
+			this.name="SWI";
 		}
 	}
 
@@ -254,27 +257,28 @@ class Instruction
 		}
 		else if(dp.equals("10"))
 		{
-			if(this.opcode.substring(0,1).equals("0")){
-				String x="";
-				x = this.opcode.substring(1,4)+this.s+this.op1+this.dest+this.op2+"00";
-				String sign=x.substring(0,1);
-				for(int i=0;i<6;i++){
-					x=sign+x;
-				}		
-				branchvalue=x;		
-				opcode=dp+"10";
-				s=s+", jump to address "+x;
-			}
-			else{
-				String x="";
-				x = this.opcode.substring(1,4)+this.s+this.op1+this.dest+this.op2+"00";
-				String sign=x.substring(0,1);
-				for(int i=0;i<6;i++){
-					x=sign+x;
-				}
-				opcode=dp+"10";
-				s=s+", jump with link to address "+x;
-			}
+			op1 = Long.parseLong(this.op2.substring(8,12), 2);
+			if(this.opcode.substring(0,1).equals("0"))
+				s += ", called Branch at address " + op1;
+			else
+				s += ", called Branch with Link, at address " + op1;
+		}
+		else if(dp.equals("11"))
+		{
+			String str = this.op2.substring(4, 12);
+			s += ", with command ";
+			if(str.equals("00000000"))
+				s += "SWI_PrChr";
+			else if(str.equals("00000010") || str.equals("01101001"))
+				s += "SWI_PrStr";
+			else if(str.equals("00010001"))
+				s = "";
+			else if(str.equals("01101010"))
+				s += "SWI_RdStr";
+			else if(str.equals("01101011"))
+				s += "SWI_PrInt";
+			else if(str.equals("01101100"))
+				s += "SWI_RdInt";
 		}
 
 		return s;
@@ -285,6 +289,8 @@ class Read
 {
 	public static int n = 36864;
 	public static int[] memory = new int[n];
+	public static Object r0;
+	public static int compare = 0;
 	public static ArrayList<String> read(String file) throws IOException
 	{
 		ArrayList<String> instructions = new ArrayList<String>();
@@ -308,7 +314,7 @@ class Read
 	public static void readingfile() throws IOException{
 		ArrayList<String> instructions = new ArrayList<String>();
 
-		instructions = read("abc.txt");
+		instructions = read("fib.mem");
 
 		ArrayList<String> addresses = new ArrayList<String>();
 
@@ -316,6 +322,21 @@ class Read
 		{
 			addresses.add(instructions.get(i).split(" ")[0]);
 			instructions.set(i, Long.toBinaryString(Long.parseLong(instructions.get(i).split(" ")[1].substring(2), 16)));
+		}
+
+		String s = "", te = "0";
+		int l;
+		for(int i = 0; i < instructions.size(); i++)
+		{
+			if(instructions.get(i).length() < 32)
+			{
+				s = instructions.get(i);
+				l = 32 - s.length();
+				for(int j = 0; j < l-1; j++)
+					te += "0";
+				instructions.set(i, te+s);
+			}
+
 		}
 
 		ArrayList<Instruction> coded = new ArrayList<Instruction>();
@@ -344,13 +365,13 @@ class Read
 		}
 		return -1;
 	}
-	public static void execute(ArrayList<Instruction> coded ){
+	public static void execute(ArrayList<Instruction> coded ) throws IOException{
 		int pc=0;
+		Scanner b = new Scanner(System.in);
 		while(pc<coded.size()-1){
 			String a=coded.get(pc).decode();
 			//Instruction.registers[15]=c.get(pc).address;
-			String operation=coded.get(pc).name;
-			int compare=0;
+			String operation=a.split(",")[0].split(" ")[2];
 			if(operation.equals("MOV")){
 				int a1=Integer.parseInt(coded.get(pc).op1,2);
 				int b1=Integer.parseInt(coded.get(pc).dest,2);
@@ -506,21 +527,21 @@ class Read
 							else
 							{
 								if(coded.get(pc).opcode.substring(1, 2).equals("1"))
-									Instruction.registers[dest] = memory[(Instruction.registers[op1] + op2) % n];
+									Instruction.registers[dest] = memory[(Instruction.registers[op1] + op2 + n) % n];
 								else
-									Instruction.registers[dest] = memory[(Instruction.registers[op1] - op2) % n];
+									Instruction.registers[dest] = memory[(Instruction.registers[op1] - op2 + n) % n];
 							}
 						}
 						else
 						{
 							if(coded.get(pc).opcode.substring(1, 2).equals("1"))
 							{
-								Instruction.registers[dest] = memory[Instruction.registers[op1] % n];
+								Instruction.registers[dest] = memory[(Instruction.registers[op1] + n) % n];
 								Instruction.registers[op1] = Instruction.registers[op1] + op2;
 							}	
 							else
 							{
-								Instruction.registers[dest] = memory[Instruction.registers[op1] % n];
+								Instruction.registers[dest] = memory[(Instruction.registers[op1] + n) % n];
 								Instruction.registers[op1] = Instruction.registers[op1] - op2;
 							}
 						}
@@ -603,9 +624,9 @@ class Read
 							else
 							{
 								if(coded.get(pc).opcode.substring(1, 2).equals("1"))
-									memory[(Instruction.registers[op1] + op2) % n] = Instruction.registers[dest];
+									memory[(Instruction.registers[op1] + op2 + n) % n] = Instruction.registers[dest];
 								else
-									memory[(Instruction.registers[op1] - op2) % n] = Instruction.registers[dest];
+									memory[(Instruction.registers[op1] - op2 + n) % n] = Instruction.registers[dest];
 							}
 						}
 						else
@@ -700,63 +721,107 @@ class Read
 				pc++;
 			}
 			else if(operation.equals("B")){
-				String q=coded.get(pc).condition;
+				String q=coded.get(pc).cond;
 				System.out.println("DECODE: "+a);
-				String add=coded.get(pc).branchvalue;
-				Long a1=Long.parseLong(add,2);
-				String xx=coded.get(pc).address;
-				Long a2=Long.parseLong(xx.substring(2,xx.length()),16);
-				a2=4120L;
-				a1=a1+a2;
-				add=Long.toBinaryString(a1);
-				a1=Long.parseLong(add,2)+8;
-				xx=Long.toString(a1,16);
-				if(xx.length()>8){
-					int r=xx.length()-8;
-					xx=xx.substring(r,xx.length());
+				
+				Instruction i = coded.get(pc);
+				String ss = i.opcode.substring(1,4) + i.s + i.op1 + i.dest + i.op2;
+				int k = 23;
+				while(k >= 0)
+				{
+					if(ss.substring(k, k+1).equals("1"))
+						break;
+					else
+						k--;
 				}
-				xx=xx.toUpperCase();
-				String hexadd="0x"+xx;
-				System.out.println(hexadd);
+				String a1 = "";
+				for(int v = 0; v < k; v++)
+				{
+					if(ss.substring(v,v+1).equals("0"))
+						a1 += "1";
+					else
+						a1 += "0";
+				}
+				a1 += ss.substring(k,24);
+				int dec = Integer.parseInt(a1,2);
+				a1 = Integer.toString(dec << 2, 16);
+
 				if(q.equals("EQ")){
 					if(compare==0){
-					pc=find(coded,hexadd);
+						 a1="0x"+a1;
+						pc=find(coded,a1);
 					}
 				}
 				else if(q.equals("NE")){
 					if(compare!=0){
-						pc=find(coded,hexadd);
+						 a1="0x"+a1;
+						pc=find(coded,a1);
 					}
 				}
 				else if(q.equals("LT")){
 					if(compare<0){
-						pc=find(coded,hexadd);
+						 a1="0x"+a1;
+						pc=find(coded,a1);
 					}
 				}
 				else if(q.equals("GT")){
 					if(compare>0){
-						pc=find(coded,hexadd);
+						a1="0x"+a1;
+						pc=find(coded,a1);
 					}
 				}
 				else if(q.equals("GE")){
 					if(compare>=0){
-						pc=find(coded,hexadd);
+						 a1="0x"+a1;
+						pc=find(coded,a1);
 					}
 				}
 				else if(q.equals("LE")){
 					if(compare<=0){
-						pc=find(coded,hexadd);
+						 a1="0x"+a1;
+						pc=find(coded,a1);
 					}
 				}
 				else{
-					pc=find(coded,hexadd);
+					 a1="0x"+a1;
+					pc=find(coded,a1);
 				}
+			}
+			else if(operation.equals("SWI")){
+				String str = coded.get(pc).op2.substring(4,12);
+				System.out.println("DECODE: "+a);
+				System.out.print("EXECUTE: ");
+				if(str.equals("00000000")){
+					System.out.println("Display Character : " + r0);
+				}
+				else if(str.equals("00000010") || str.equals("01101001")){
+					System.out.println("Display String + " + r0);
+				}
+				else if(str.equals("01101010")){
+					System.out.println("Read String : ");
+					System.out.println("Enter the string : ");
+					r0 = new String(b.nextLine());
+					Instruction.registers[1] = 0;
+				}
+				else if(str.equals("01101011")){
+					System.out.println("Display Integer : " + Instruction.registers[1]);
+				}
+				else if(str.equals("01101100")){
+					System.out.println("Read Integer : ");
+					System.out.println("Enter the Integer : ");
+					r0 = new Integer(b.nextInt());
+					Instruction.registers[0] = (int)r0;
+				}
+				memory(coded.get(pc));
+				writeback(coded.get(pc));
+				pc++;
 			}
 			else{
 				memory(coded.get(pc));
 				writeback(coded.get(pc));
 				pc++;
 			}
+			
 			System.out.println("");
 		}
 	}
