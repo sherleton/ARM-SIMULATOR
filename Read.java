@@ -18,7 +18,7 @@ class Instruction
 	String dest;
 	String op2;
 	String address;
-
+	String branchvalue;
 	Instruction(String addr,String bin)
 	{
 		condition = bin.substring(0,4);
@@ -32,6 +32,7 @@ class Instruction
 		address=addr;
 		this.setname();
 		this.setcond();
+		branchvalue="";
 		map.put(address+opcode, this);	
 	}
 
@@ -253,11 +254,27 @@ class Instruction
 		}
 		else if(dp.equals("10"))
 		{
-			op1 = Long.parseLong(this.op2.substring(8,12), 2);
-			if(this.opcode.substring(0,1).equals("0"))
-				s += ", called Branch at address " + op1;
-			else
-				s += ", called Branch with Link, at address " + op1;
+			if(this.opcode.substring(0,1).equals("0")){
+				String x="";
+				x = this.opcode.substring(1,4)+this.s+this.op1+this.dest+this.op2+"00";
+				String sign=x.substring(0,1);
+				for(int i=0;i<6;i++){
+					x=sign+x;
+				}		
+				branchvalue=x;		
+				opcode=dp+"10";
+				s=s+", jump to address "+x;
+			}
+			else{
+				String x="";
+				x = this.opcode.substring(1,4)+this.s+this.op1+this.dest+this.op2+"00";
+				String sign=x.substring(0,1);
+				for(int i=0;i<6;i++){
+					x=sign+x;
+				}
+				opcode=dp+"10";
+				s=s+", jump with link to address "+x;
+			}
 		}
 
 		return s;
@@ -332,7 +349,7 @@ class Read
 		while(pc<coded.size()-1){
 			String a=coded.get(pc).decode();
 			//Instruction.registers[15]=c.get(pc).address;
-			String operation=a.substring(13,16);
+			String operation=coded.get(pc).name;
 			int compare=0;
 			if(operation.equals("MOV")){
 				int a1=Integer.parseInt(coded.get(pc).op1,2);
@@ -683,55 +700,56 @@ class Read
 				pc++;
 			}
 			else if(operation.equals("B")){
-				System.out.println("yellow");
 				String q=coded.get(pc).condition;
 				System.out.println("DECODE: "+a);
+				String add=coded.get(pc).branchvalue;
+				Long a1=Long.parseLong(add,2);
+				String xx=coded.get(pc).address;
+				Long a2=Long.parseLong(xx.substring(2,xx.length()),16);
+				a2=4120L;
+				a1=a1+a2;
+				add=Long.toBinaryString(a1);
+				a1=Long.parseLong(add,2)+8;
+				xx=Long.toString(a1,16);
+				if(xx.length()>8){
+					int r=xx.length()-8;
+					xx=xx.substring(r,xx.length());
+				}
+				xx=xx.toUpperCase();
+				String hexadd="0x"+xx;
+				System.out.println(hexadd);
 				if(q.equals("EQ")){
 					if(compare==0){
-						String a1=(coded.get(pc).op2.substring(8,12));
-						 a1="0x"+a1;
-						pc=find(coded,a1);
+					pc=find(coded,hexadd);
 					}
 				}
 				else if(q.equals("NE")){
 					if(compare!=0){
-						String a1=(coded.get(pc).op2.substring(8,12));
-						 a1="0x"+a1;
-						pc=find(coded,a1);
+						pc=find(coded,hexadd);
 					}
 				}
 				else if(q.equals("LT")){
 					if(compare<0){
-						String a1=(coded.get(pc).op2.substring(8,12));
-						 a1="0x"+a1;
-						pc=find(coded,a1);
+						pc=find(coded,hexadd);
 					}
 				}
 				else if(q.equals("GT")){
 					if(compare>0){
-						String a1=(coded.get(pc).op2.substring(8,12));
-						a1="0x"+a1;
-						pc=find(coded,a1);
+						pc=find(coded,hexadd);
 					}
 				}
 				else if(q.equals("GE")){
 					if(compare>=0){
-						String a1=(coded.get(pc).op2.substring(8,12));
-						 a1="0x"+a1;
-						pc=find(coded,a1);
+						pc=find(coded,hexadd);
 					}
 				}
 				else if(q.equals("LE")){
 					if(compare<=0){
-						String a1=(coded.get(pc).op2.substring(8,12));
-						 a1="0x"+a1;
-						pc=find(coded,a1);
+						pc=find(coded,hexadd);
 					}
 				}
 				else{
-					String a1=(coded.get(pc).op2.substring(8,12));
-					 a1="0x"+a1;
-					pc=find(coded,a1);
+					pc=find(coded,hexadd);
 				}
 			}
 			else{
