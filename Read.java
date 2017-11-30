@@ -787,6 +787,7 @@ class Read
 					if(compare==0){
 						a1="0x"+a1;
 						pc=find(coded,a1);
+						pc--;
 					}
 					else{
 
@@ -797,6 +798,7 @@ class Read
 					if(compare!=0){
 						 a1="0x"+a1;
 						pc=find(coded,a1);
+						pc--;
 					}
 					else{
 
@@ -807,6 +809,7 @@ class Read
 					if(compare<0){
 						 a1="0x"+a1;
 						pc=find(coded,a1);
+						pc--;
 					}
 					else{
 
@@ -817,6 +820,7 @@ class Read
 					if(compare>0){
 						a1="0x"+a1;
 						pc=find(coded,a1);
+						pc--;
 					}
 					else{
 
@@ -827,6 +831,7 @@ class Read
 					if(compare>=0){
 						 a1="0x"+a1;
 						pc=find(coded,a1);
+						pc--;
 					}
 					else{
 
@@ -835,8 +840,9 @@ class Read
 				}
 				else if(q.equals("LE")){
 					if(compare<=0){
-						 a1="0x"+a1;
+						a1="0x"+a1;
 						pc=find(coded,a1);
+						pc--;
 					}
 					else{
 
@@ -846,6 +852,7 @@ class Read
 				else{
 					a1="0x"+a1;
 					pc=find(coded,a1);
+					pc--;
 					
 						
 				}
