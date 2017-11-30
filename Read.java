@@ -370,7 +370,6 @@ class Read
 	public static int find(ArrayList<Instruction> coded,String s){
 		for(int i=0;i<coded.size();i++){
 			if(coded.get(i).address.equals(s)){
-				System.out.println(coded.get(i).address+"  "+s);
 				return i;
 			}
 		}
