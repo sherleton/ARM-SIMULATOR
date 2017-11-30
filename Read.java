@@ -392,14 +392,6 @@ class Read
 
 		Instruction st = null;
 
-		System.out.println("address   " + "unknown   " + "dp   " + "immediate_bit  " + "opcode   " + "s     " + "op1       " + "dest           " + "op2");
-
-		for(int i = 0; i < coded.size(); i++)
-		{
-			st = coded.get(i);
-			System.out.println(addresses.get(i) + "        " + st.condition + "    " + st.dp + "         " + st.immediate + "          " + st.opcode + "   " + st.s + "      " + st.op1 + "      " + st.dest + "      " + st.op2 + "   " + st.name);
-		}
-
 		int a0=execute(coded);
 		if(a0==0){
 			coded.get(coded.size()-1).fetch();
