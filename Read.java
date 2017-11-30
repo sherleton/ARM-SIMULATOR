@@ -755,7 +755,30 @@ class Read
 				}
 				a1 += ss.substring(k,24);
 				int dec = Integer.parseInt(a1,2);
-				a1 = Integer.toString(dec << 2, 16);
+				dec = dec << 2;
+				String a2 = Integer.toBinaryString(dec);
+				char ch = '0';
+				if(a2.charAt(0) == '1')
+					ch = '1';
+				else
+					ch = '0';
+				int x = a2.length();
+				x = 32 - x;
+				if(a2.length() < 24)
+				{
+					for(int v = 0; v < x; v++)
+						a2 = '0' + a2;
+				}
+				else
+				{
+					for(int v = 0; v < x; v++)
+						a2 = ch + a2;
+				}
+				
+				dec = Integer.parseInt(a2, 2);
+				dec = Integer.parseInt(i.address.substring(2), 16) + dec;
+				a1 = Integer.toString(dec);
+				System.out.println(a1);
 
 				if(q.equals("EQ")){
 					if(compare==0){
